@@ -1,57 +1,73 @@
-var width = 1920,
-    height = 1080;
+var width = 400,
+    height = 300;
 
 function init(){
     d3
-        .csv("data/h_data.csv")
+        .csv("data/tags.csv")
         .then((data) => {
-            createTreeMap(data);
+            createWordCloud(data);
         })
         .catch((error) => {
             console.log(error);
         });
 }
 
-function createTreeMap(data) {
-    var format = d3.format(",d");
+function createWordCloud(data) {
+    d3
+        .select("div#word_cloud")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
 
-    var color = d3.scaleOrdinal()
-        .range(d3.schemeCategory10
-            .map(function(c) { c = d3.rgb(c); c.opacity = 0.6; return c; }));
+    const counts = {};
+    for (let row of data) {
+        for (let tag in row) {
+            if (tag != "id") {
+                if (counts[tag] != undefined) {
+                    counts[tag] += (row[tag] == "True") ? 1 : 0;
+                }
+                else {
+                    counts[tag] = (row[tag] == "True") ? 1 : 0;
+                }
+            }
+        }
+    }
 
-    var stratify = d3.stratify()
-        .id(d => d.child)
-        .parentId(function(d) { return d.parent });
+    const sorted_counts = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    sorted_counts.splice(40);
+    console.log(sorted_counts);
 
-    var treemap = d3.treemap()
+    const layout = d3.layout
+        .cloud()
         .size([width, height])
-        .padding(1)
-        .round(true);
+        .words(sorted_counts.map(
+            (d) => { return {text: d[0], size: d[1]}; }
+        ))
+        .padding(5)
+        .rotate(0)
+        .fontSize(d => d.size / 25)
+        .on("end", draw);
+    layout.start();
 
-
-  var root = stratify(data)
-        .sum(function(d) { return d.danceability; })
-        .sort(function(a, b) { return b.height - a.height || b.value - a.value; });
-
-  treemap(root)
-
-  d3
-    .select("div")
-    .selectAll(".node")
-    .data(root.leaves())
-    .enter().append("div")
-    .attr("class", "node")
-    .attr("title", function(d) { return d.id + "\n" + format(d.value); })
-    .style("left", function(d) { return d.x0 + "px"; })
-    .style("top", function(d) { return d.y0 + "px"; })
-    .style("width", function(d) { return d.x1 - d.x0 + "px"; })
-    .style("height", function(d) { return d.y1 - d.y0 + "px"; })
-    .style("background", function(d) { while (d.depth > 1) d = d.parent; return color(d.id); })
-    .append("div")
-    .attr("class", "node-label")
-    .text(function(d) { return d.id.split(/(?=[A-Z][^A-Z])/g).join("\n"); })
-    .append("div")
-    .attr("class", "node-value")
-    .text(function(d) { return d.value; });
-
+    function draw(words) {
+        d3
+            .select("div#word_cloud")
+            .select("svg")
+            .append("g")
+            .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
+            .selectAll("text")
+            .data(words)
+            .enter()
+            .append("text")
+            .style("font-size", d => d.size)
+            .style("fill", _ => `rgb(${Math.random()*256}, ${Math.random()*256}, ${Math.random()*256})`)
+            .attr("text-anchor", "middle")
+            .style("font-family", "Impact")
+            .attr("transform", function(d) {
+                return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+            })
+            .text(d => d.text);
+    }
 }
+
+

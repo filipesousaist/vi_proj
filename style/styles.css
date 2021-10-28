@@ -1,5 +1,9 @@
 body {
-font: 10px sans-serif;
-position: relative;
-margin: 10
+    display: flex;
+}
+
+div {
+    width: 100%;
+    margin: 10px;
+    display: inline-block;
 }

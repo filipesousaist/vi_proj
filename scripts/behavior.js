@@ -412,29 +412,6 @@ function createDotPlot3(tags, playerCountHistory) {
   }
 
 function createDotPlot(tags, playerCountHistory) {
-    /*var rawData = d3.csv.parse(d3.select("#csv").text());
-
-    var data = [];
-
-    rawData.forEach(function(d) {
-        data.push({
-            day: d.day,
-            fruit: "apples",
-            amount: +d.apples
-        });
-        data.push({
-            day: d.day,
-            fruit: "pears",
-            amount: +d.pears
-        });
-        data.push({
-            day: d.day,
-            fruit: "oranges",
-            amount: +d.oranges
-        });
-    });
-    */
-
     const tag_names = Object.getOwnPropertyNames(tags[0]);
     tag_names.splice(tag_names.indexOf("id"), 1);
 
@@ -492,31 +469,42 @@ function createDotPlot(tags, playerCountHistory) {
 
     data.sort((pc1, pc2) => pc2["value"] - pc1["value"]);
 
-    var margin = {
+    const margin = {
             top: 30,
             right: 20,
-            bottom: 30,
+            bottom: 80,
             left: 50
         },
         width = 360 - margin.left - margin.right,
         height = 300 - margin.top - margin.bottom;
 
-    var x = d3.scaleBand().rangeRound([0, width]).padding(0.1);
-        //.range([0, width]);
-
-    var y = d3.scaleLinear()
+    const x = d3
+        .scalePoint()
+        .domain(data.map(d => d["tag"]))
+        .range([0, width])
+        .padding(1);
+    
+    const y = d3
+        .scaleLinear()
+        .domain([
+            0, 
+            1.1 * d3.max(d3.map(data, d => d["value"]))
+        ])
         .range([height, 0]);
 
-    var color = d3.scaleOrdinal(d3.schemeCategory10)
+    const color = d3
+        .scaleOrdinal(d3.schemeCategory10)
         .domain(["value", "peak"]);
 
-    var xAxis = d3.axisBottom()
+    const xAxis = d3
+        .axisBottom()
         .scale(x);
 
-    var yAxis = d3.axisLeft()
+    const yAxis = d3
+        .axisLeft()
         .scale(y);
 
-    var svg = d3
+    const svg = d3
         .select("div#dot_plot")
         .append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -524,51 +512,34 @@ function createDotPlot(tags, playerCountHistory) {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var chart = svg.append("g")
-        .attr("id", "chart");
-
-    x.domain(data.map(d => d["tag"]));
-    y.domain([0, d3.max(d3.map(data, d => d["value"]))]);
-
-    svg.append("g")
+    svg
+        .append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis)
-        .append("text")
-        .attr("class", "label")
-        .attr("x", width)
-        .attr("y", -6)
+        .selectAll("text")  
         .style("text-anchor", "end")
-        .text("Day");
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-45)");
 
-    svg.append("g")
+    svg
+        .append("g")
         .attr("class", "y axis")
-        .call(yAxis)
-        .append("text")
-        .attr("class", "label")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", ".71em")
-        .style("text-anchor", "end")
-        .text("amount");
+        .call(yAxis);
 
-    var dots = svg.selectAll("circle")
+    svg
+        .selectAll("circle")
         .data(data)
         .enter().append("circle")
         .attr("class", "dot")
         .attr("r", 3.5)
-        .attr("cx", function(d) {
-            return x(d["tag"]);
-        })
-        .attr("cy", function(d) {
-            return y(d["value"])
-        })
-        .style("fill", function(d) {
-            return color(d["type"])
-        })
+        .attr("cx", d => x(d["tag"]))
+        .attr("cy", d => y(d["value"]))
+        .style("fill", d => color(d["type"]))
         .style("opacity", .5)
         .append("title")
-        .text(function(d){ return d["type"] + ": " + d["value"]});
+        .text(d => d["type"] + ": " + Math.round(d["value"] * 100) / 100);
 }
 
 }

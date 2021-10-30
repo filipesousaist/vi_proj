@@ -1,11 +1,13 @@
-var topTags;
+// Global variables
 
-var selectedTags = [];
+let g_selectedTags = [];
 
-var tagsSet;
-var playerCountHistorySet;
+let g_tags;
+let g_playerCountHistory;
 
-function init(){
+// Functions
+
+function init() {
 
     Promise
     .all([
@@ -13,159 +15,21 @@ function init(){
         d3.csv("data/playerCountHistory.csv")
     ])
     .then(([tags, playerCountHistory]) => {
-        tagsSet = tags;
-        playerCountHistorySet = playerCountHistory;
-        createWordCloud(tags, false);
-        createDotPlot(tags, playerCountHistory, false);
-        createSmallMultiples(tags, playerCountHistory)
+        g_tags = tags;
+        g_playerCountHistory = playerCountHistory;
+        
+        updatePlots(false);
     })
     .catch((error) => {
         console.log(error);
     });
 }
 
-function createWordCloud(data, update) {
-    const width = 400;
-    const height = 300;
-
-    const counts = {};
-
-    for (let row of data) {
-        for (let tag in row) {
-            if (tag != "id") {
-                var noSelectedTags = false;
-                for (let selectedTag in selectedTags){
-                    if (row[selectedTags[selectedTag]] != "True"){
-                        noSelectedTags = true;
-                        break;
-                    }
-                }
-                if (noSelectedTags) {
-                    continue;
-                }
-                if (counts[tag] != undefined) {
-                    counts[tag] += (row[tag] == "True") ? 1 : 0;
-                }
-                else {
-                    counts[tag] = (row[tag] == "True") ? 1 : 0;
-                }
-            }
-        }
-    
-    }
-
-    const sorted_counts_pre_remove = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-    for (let selectedTag in selectedTags) {
-        console.log(selectedTags[selectedTag])
-        for (var i = 0; i < sorted_counts_pre_remove.length; i++) {
-            if (sorted_counts_pre_remove[i][0] === selectedTags[selectedTag]) {
-                sorted_counts_pre_remove.splice(i, 1);
-                continue;
-            }
-        }
-    }
-
-    sorted_counts_pre_remove.splice(40)
-    
-    const sorted_counts = sorted_counts_pre_remove.filter(function (tag) {
-        return tag[1] > 0;
-    });
-
-    console.log(sorted_counts);
-
-    const layout = d3.layout
-        .cloud()
-        .size([width, height])
-        .words(sorted_counts.map(
-            (d) => { return {text: d[0], size: d[1]}; }
-        ))
-        .padding(5)
-        .rotate(0)
-        .fontSize(d => d.size / sorted_counts[0][1] * 49)
-        .on("end", draw);
-    layout.start();
-
-    
-    function draw(words) {
-        if (!update){
-            d3
-                .select("div#word_cloud")
-                .append("svg")
-                .append("g")
-        }
-    
-        const svg = d3
-            .select("div#word_cloud")
-            .select("svg")
-            .attr("width", width)
-            .attr("height", height);
-
-        svg
-            .select("g")
-            .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
-            .selectAll("text")
-            .data(words)
-            .join(
-                (enter) => {
-                    return enter
-                    .append("text")
-                    .style("font-size", d => d.size)
-                    .style("fill", _ => `rgb(${Math.random()*256}, ${Math.random()*256}, ${Math.random()*256})`)
-                    .attr("text-anchor", "middle")
-                    .style("font-family", "Impact")
-                    .attr("transform", function(d) {
-                        return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-                    })
-                    .text(d => d.text)
-                    .on("click", handleClick)
-                    .transition()
-                    .duration(2000);
-                    
-                },
-                (update) => {
-                    update
-                    .transition()
-                    .duration(1000)
-                    .style("font-size", d => d.size)
-                    .style("fill", _ => `rgb(${Math.random()*256}, ${Math.random()*256}, ${Math.random()*256})`)
-                    .attr("text-anchor", "middle")
-                    .style("font-family", "Impact")
-                    .attr("transform", function(d) {
-                        return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-                    })
-                    .text(d => d.text);
-                },
-                (exit) => {
-                    return exit.remove();
-                }
-            )
-    }
-}
-
-
-function createDotPlot(tags, playerCountHistory, update) {
+function getNumAndPeakPlayersPerTag(tags, playerCounts) {
     const tag_names = Object.getOwnPropertyNames(tags[0]);
     tag_names.splice(tag_names.indexOf("id"), 1);
 
-    let data = [];
-
-    const playerCounts = {};
-
-    for (let row of playerCountHistory) {
-        const id = row["appid"];
-        if (id in playerCounts) {
-            playerCounts[id]["num"] += parseFloat(row["mean"]);
-            playerCounts[id]["peak"] += parseFloat(row["max"]);
-            playerCounts[id]["n"] ++;
-        }
-        else {
-            playerCounts[id] = {
-                "num": parseFloat(row["mean"]),
-                "peak": parseFloat(row["max"]),
-                "n": 1
-            }
-        }
-    }
+    const data = [];
 
     for (let tag of tag_names) {
         let n = 0;
@@ -185,399 +49,19 @@ function createDotPlot(tags, playerCountHistory, update) {
         data.push({"tag": tag, "value": peak_players / n, "type": "peak"});
     }
 
-    const data_num = data.filter(d => d["type"] == "num");
+    return data;
+
+}
+
+function getTopTagsByNumPlayers(numAndPeakPlayersPerTag, n) {
+    const data_num = numAndPeakPlayersPerTag.filter(d => d["type"] == "num");
 
     data_num
         .sort((pc1, pc2) => pc2["value"] - pc1["value"])
-        .splice(10);
-    
-    data = data.filter(d => {
-        for (let d_num of data_num) {
-            if (d["tag"] == d_num["tag"])
-                return true;
-        }
-        return false;
-    });
+        .splice(n);
 
-    data.sort((pc1, pc2) => pc2["value"] - pc1["value"]);
-
-    //tags para os small multiples
-    topTags = data_num;
-
-    const margin = {
-            top: 30,
-            right: 20,
-            bottom: 80,
-            left: 50
-        },
-        width = 360 - margin.left - margin.right,
-        height = 300 - margin.top - margin.bottom;
-
-    const x = d3
-        .scalePoint()
-        .domain(data.map(d => d["tag"]))
-        .range([0, width])
-        .padding(1);
-    
-    const y = d3
-        .scaleLinear()
-        .domain([
-            0, 
-            1.1 * d3.max(d3.map(data, d => d["value"]))
-        ])
-        .range([height, 0]);
-
-    const color = d3
-        .scaleOrdinal(
-            ["value", "peak"], 
-            ["#0000FF", "#FF0000"]
-        );
-
-    const xAxis = d3
-        .axisBottom()
-        .scale(x)
-        .tickSizeOuter(0);
-
-    const yAxis = d3
-        .axisLeft()
-        .scale(y)
-        .tickSizeOuter(0);
-
-
-    if (!update) {
-        d3
-            .select("div#dot_plot")
-            .append("svg")
-            .append("g")
-    }
-
-    const svg = d3
-        .select("div#dot_plot")
-        .select("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .select("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    if (!update) {
-        svg
-            .append("g")
-            .attr("class", "xAxis");
-
-        svg
-            .append("g")
-            .attr("class", "yAxis");
-    }
-
-    
-    svg
-        .select("g.xAxis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis)
-        .selectAll("text")  
-        .style("text-anchor", "end")
-        .attr("dx", "-.8em")
-        .attr("dy", ".15em")
-        .attr("transform", "rotate(-45)");
-
-    svg
-        .select("g.yAxis")
-        .call(yAxis);
-
-    svg
-        .selectAll("circle")
-        .data(data)
-        .join(
-            (enter) => {
-                return enter
-                .append("circle")
-                .attr("class", "dot")
-                .attr("r", 3.5)
-                .attr("cx", d => x(d["tag"]))
-                .attr("cy", d => y(d["value"]))
-                .style("fill", d => color(d["type"]))
-                .style("opacity", .5)
-                .append("title")
-                .text(d => d["type"] + ": " + Math.round(d["value"] * 100) / 100);
-            },
-            (update) => {
-                update
-                .attr("class", "dot")
-                .attr("r", 3.5)
-                .attr("cx", d => x(d["tag"]))
-                .attr("cy", d => y(d["value"]))
-                .style("fill", d => color(d["type"]))
-                .append("title")
-                .text(d => d["type"] + ": " + Math.round(d["value"] * 100) / 100);
-            },
-            (exit) => {
-                return exit.remove();
-            }
-        )
+    return data_num;
 }
-        
-
-function createSmallMultiples(tags, playerCountHistory){
-    const tag_names = Object.getOwnPropertyNames(tags[0]);
-    tag_names.splice(tag_names.indexOf("id"), 1);
-
-    let tagsGames = {};
-    
-    topTags.forEach(element => {
-        tagsGames[element["tag"]] = []
-    });
-
-    let data = [];
-
-    const playerCounts = {};
-    
-    for (let row of tags) {
-        const id = row["id"];
-        Object.keys(tagsGames).forEach(tag => {
-            if(row[tag] === 'True'){
-                tagsGames[tag].push(id)
-                playerCounts[id] = 0
-            }
-        });
-    }
-
-    //console.log(tagsGames)
-
-    //somar mean values dos ids de cada tag
-    for (let row of playerCountHistory) {
-        const id = row["appid"];
-        if(id in playerCounts){
-            playerCounts[id] += parseFloat(row["mean"]);
-        }
-    }
-
-    Object.keys(playerCounts).forEach(id => playerCounts[id] /= 33)
-
-   // console.log(playerCounts)
-
-    //associar mean values aos ids nas listas das tags & sort
-    Object.keys(tagsGames).forEach(tag => {
-        for(let i = 0; i < tagsGames[tag].length; i++) {
-            tagsGames[tag][i] = {"id" : tagsGames[tag][i], "num": playerCounts[tagsGames[tag][i]]};
-        }
-        tagsGames[tag].sort((pc1, pc2) => pc2["num"] - pc1["num"]);
-    });
-    console.log(tagsGames)
-    console.log(topTags)
-
-    //criar barcharts
-    createBarChart(tagsGames[Object.keys(tagsGames)[0]], "1");
-    createBarChart(tagsGames[Object.keys(tagsGames)[1]], "2");
-    createBarChart(tagsGames[Object.keys(tagsGames)[2]], "3");
-    createBarChart(tagsGames[Object.keys(tagsGames)[3]], "4");
-    createBarChart(tagsGames[Object.keys(tagsGames)[4]], "5");
-}
-
-function createBarChart(data, chartNum){
-    data.splice(5);
-	console.log(data)
-
-	margin = { top: 20, right: 20, bottom: 20, left: 40 };
-
-    width = 400 - margin.left - margin.right;
-    height = 170 - margin.top - margin.bottom;
-
-	const x = d3
-        .scaleBand()
-        .domain(data.map(d => d["id"]))
-        .range([0, width])
-        .padding(0.4);
-
-    const y = d3.scaleLinear()
-        .domain([0, 1.1 * d3.max(d3.map(data, d => d["num"]))])
-        .range([ height, 0]);
-		
-    const xAxis = d3
-        .axisBottom()
-        .scale(x);
-		
-	const yAxis = d3
-        .axisLeft()
-        .scale(y);
-		
-	const svg = d3
-        .select("div#small" + chartNum)
-        .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-
-    svg
-        .append("g")
-        .attr("class", "bars");
-	
-    svg
-        .append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis)
-        .selectAll("text")  
-        .style("text-anchor", "end")
-        .attr("dx", "-.8em")
-        .attr("dy", ".15em")
-        .attr("transform", "rotate(-45)");
-	
-    svg
-        .append("g")
-        .attr("class", "y axis")
-        .call(yAxis);
-	
-	svg
-		.select("g.bars")
-		.selectAll("rect")
-		.data(data, function (d) {
-				return d["num"];
-		})
-		.enter()
-		.append("rect")
-        .attr("x", function(d) {return x(d["id"]); })
-        .attr("y", function(d) {return y(d["num"]); })
-        .attr("width", x.bandwidth())
-        .attr("height", function(d) { return height - y(d["num"]); })
-		.style("fill", "steelblue");
-}
-
-
-function handleClick(_, d) {
-    if (!selectedTags.includes(d.text)){
-        //window.alert(d.text);
-        selectedTags.push(d.text);
-        createWordCloud(tagsSet, true);
-        createDotPlot(tagsSet, playerCountHistorySet, true);
-    }
-    console.log(selectedTags)
-}
-
-function reset(){
-    selectedTags = [];
-    createWordCloud(tagsSet, true);
-    createDotPlot(tagsSet, playerCountHistorySet, true);
-}
-/*
-function createDotPlot(tags, playerCountHistory) {
-    const tag_names = Object.getOwnPropertyNames(tags[0]);
-    tag_names.splice(tag_names.indexOf("id"), 1);
-
-    const playerCounts = computePlayerCounts(playerCountHistory);
-    const playerCountsList = []; 
-
-    for (let tag of tag_names) {
-        let n = 0;
-        let num_players = 0;
-        let peak_players = 0;
-        for (let row of tags) {
-            if (row[tag] == "True") {
-                const id = row["id"];
-                const playerCount = playerCounts[id];
-
-                n += playerCount["n"];
-                num_players += playerCount["num"];
-                peak_players += playerCount["peak"];
-            }
-        }
-        playerCountsList.push({"tag": tag, "value": num_players / n, "type": "num"});
-        playerCountsList.push({"tag": tag, "value": peak_players / n, "type": "peak"});
-    }
-
-    const data_num = playerCountsList.filter(d => d["type"] == "num");
-
-    data_num
-        .sort((pc1, pc2) => pc2["value"] - pc1["value"])
-        .splice(10);
-    
-    const data = playerCountsList.filter(d => {
-        for (let d_num of data_num) {
-            if (d["tag"] == d_num["tag"])
-                return true;
-        }
-        return false;
-    });
-
-    data.sort((pc1, pc2) => pc2["value"] - pc1["value"]);
-
-    const margin = {
-        top: 30,
-        right: 20,
-        bottom: 80,
-        left: 50
-    };
-    const width = 360 - margin.left - margin.right;
-    const height = 300 - margin.top - margin.bottom;
-
-    const x = d3
-        .scalePoint()
-        .domain(data.map(d => d["tag"]))
-        .range([0, width])
-        .padding(0.5);
-    
-    const y = d3
-        .scaleLinear()
-        .domain([
-            0, 
-            1.1 * d3.max(d3.map(data, d => d["value"]))
-        ])
-        .range([height, 0]);
-
-    const color = d3
-        .scaleOrdinal(
-            ["value", "peak"], 
-            ["#0000FF", "#FF0000"]
-        );
-
-    const xAxis = d3
-        .axisBottom()
-        .scale(x)
-        .tickSizeOuter(0);
-
-    const yAxis = d3
-        .axisLeft()
-        .scale(y)
-        .tickSizeOuter(0);
-
-    const svg = d3
-        .select("div#dot_plot")
-        .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    svg
-        .append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis)
-        .selectAll("text")  
-        .style("text-anchor", "end")
-        .attr("dx", "-.8em")
-        .attr("dy", ".15em")
-        .attr("transform", "rotate(-45)");
-
-    svg
-        .append("g")
-        .attr("class", "y axis")
-        .call(yAxis);
-
-    svg
-        .selectAll("circle")
-        .data(data)
-        .enter().append("circle")
-        .attr("class", "dot")
-        .attr("r", 3.5)
-        .attr("cx", d => x(d["tag"]))
-        .attr("cy", d => y(d["value"]))
-        .style("fill", d => color(d["type"]))
-        .style("opacity", .5)
-        .append("title")
-        .text(d => d["type"] + ": " + Math.round(d["value"] * 100) / 100);
-}
-*/
 
 function computePlayerCounts(playerCountHistory) {
     const playerCounts = {};
@@ -599,5 +83,28 @@ function computePlayerCounts(playerCountHistory) {
     }
 
     return playerCounts;
+}
+
+function handleClick(_, d) {
+    if (!g_selectedTags.includes(d.text)){
+        g_selectedTags.push(d.text);
+
+        updatePlots();
+    }
+}
+
+function reset() {
+    g_selectedTags = [];
+
+    updatePlots();
+}
+
+function updatePlots(update = true) {
+    const playerCounts = computePlayerCounts(g_playerCountHistory);
+    const numAndPeakPlayersPerTag = getNumAndPeakPlayersPerTag(g_tags, playerCounts);
+
+    createWordCloud(g_tags, update);
+    createDotPlot(numAndPeakPlayersPerTag, update);
+    createSmallMultiples(g_tags, numAndPeakPlayersPerTag, playerCounts);
 }
 

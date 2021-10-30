@@ -55,7 +55,21 @@ function createWordCloud(data, update) {
     }
 
     const sorted_counts_pre_remove = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-    const sorted_counts = sorted_counts_pre_remove.splice(selectedTags.length, 40);
+    for (let selectedTag in selectedTags) {
+        console.log(selectedTags[selectedTag])
+        for (var i = 0; i < sorted_counts_pre_remove.length; i++) {
+            if (sorted_counts_pre_remove[i][0] === selectedTags[selectedTag]) {
+                sorted_counts_pre_remove.splice(i, 1);
+                continue;
+            }
+        }
+    }
+
+    sorted_counts_pre_remove.splice(40)
+    
+    const sorted_counts = sorted_counts_pre_remove.filter(function (tag) {
+        return tag[1] > 0;
+    });
 
     console.log(sorted_counts);
 
@@ -428,7 +442,7 @@ function createBarChart(data, chartNum){
 
 function handleClick(_, d) {
     if (!selectedTags.includes(d.text)){
-        window.alert(d.text);
+        //window.alert(d.text);
         selectedTags.push(d.text);
         createWordCloud(tagsSet, true);
         createDotPlot(tagsSet, playerCountHistorySet, true);

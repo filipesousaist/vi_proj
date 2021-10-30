@@ -1,4 +1,4 @@
-
+var topTags;
 
 function init(){
 
@@ -10,6 +10,7 @@ function init(){
     .then(([tags, playerCountHistory]) => {
         createWordCloud(tags);
         createDotPlot(tags, playerCountHistory);
+        createSmallMultiples(tags, playerCountHistory)
     })
     .catch((error) => {
         console.log(error);
@@ -469,6 +470,9 @@ function createDotPlot(tags, playerCountHistory) {
 
     data.sort((pc1, pc2) => pc2["value"] - pc1["value"]);
 
+    //tags para os small multiples
+    topTags = data_num;
+
     const margin = {
             top: 30,
             right: 20,
@@ -540,6 +544,132 @@ function createDotPlot(tags, playerCountHistory) {
         .style("opacity", .5)
         .append("title")
         .text(d => d["type"] + ": " + Math.round(d["value"] * 100) / 100);
+}
+
+function createSmallMultiples(tags, playerCountHistory){
+    const tag_names = Object.getOwnPropertyNames(tags[0]);
+    tag_names.splice(tag_names.indexOf("id"), 1);
+
+    let tagsGames = {};
+    
+    topTags.forEach(element => {
+        tagsGames[element["tag"]] = []
+    });
+
+    let data = [];
+
+    const playerCounts = {};
+    
+    for (let row of tags) {
+        const id = row["id"];
+        Object.keys(tagsGames).forEach(tag => {
+            if(row[tag] === 'True'){
+                tagsGames[tag].push(id)
+                playerCounts[id] = 0
+            }
+        });
+    }
+
+    //console.log(tagsGames)
+
+    //somar mean values dos ids de cada tag
+    for (let row of playerCountHistory) {
+        const id = row["appid"];
+        if(id in playerCounts){
+            playerCounts[id] += parseFloat(row["mean"]);
+        }
+    }
+
+    Object.keys(playerCounts).forEach(id => playerCounts[id] /= 33)
+
+   // console.log(playerCounts)
+
+    //associar mean values aos ids nas listas das tags & sort
+    Object.keys(tagsGames).forEach(tag => {
+        for(let i = 0; i < tagsGames[tag].length; i++) {
+            tagsGames[tag][i] = {"id" : tagsGames[tag][i], "num": playerCounts[tagsGames[tag][i]]};
+        }
+        tagsGames[tag].sort((pc1, pc2) => pc2["num"] - pc1["num"]);
+    });
+    console.log(tagsGames)
+    console.log(topTags)
+
+    //criar barcharts
+    createBarChart(tagsGames[Object.keys(tagsGames)[0]], "1");
+    createBarChart(tagsGames[Object.keys(tagsGames)[1]], "2");
+    createBarChart(tagsGames[Object.keys(tagsGames)[2]], "3");
+    createBarChart(tagsGames[Object.keys(tagsGames)[3]], "4");
+    createBarChart(tagsGames[Object.keys(tagsGames)[4]], "5");
+}
+
+function createBarChart(data, chartNum){
+    data.splice(5);
+	console.log(data)
+
+	margin = { top: 20, right: 20, bottom: 20, left: 40 };
+
+    width = 400 - margin.left - margin.right;
+    height = 170 - margin.top - margin.bottom;
+
+	const x = d3
+        .scaleBand()
+        .domain(data.map(d => d["id"]))
+        .range([0, width])
+        .padding(0.4);
+
+    const y = d3.scaleLinear()
+        .domain([0, 1.1 * d3.max(d3.map(data, d => d["num"]))])
+        .range([ height, 0]);
+		
+    const xAxis = d3
+        .axisBottom()
+        .scale(x);
+		
+	const yAxis = d3
+        .axisLeft()
+        .scale(y);
+		
+	const svg = d3
+        .select("div#small" + chartNum)
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+
+    svg
+        .append("g")
+        .attr("class", "bars");
+	
+    svg
+        .append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis)
+        .selectAll("text")  
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-45)");
+	
+    svg
+        .append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+	
+	svg
+		.select("g.bars")
+		.selectAll("rect")
+		.data(data, function (d) {
+				return d["num"];
+		})
+		.enter()
+		.append("rect")
+        .attr("x", function(d) {return x(d["id"]); })
+        .attr("y", function(d) {return y(d["num"]); })
+        .attr("width", x.bandwidth())
+        .attr("height", function(d) { return height - y(d["num"]); })
+		.style("fill", "steelblue");
 }
 
 }

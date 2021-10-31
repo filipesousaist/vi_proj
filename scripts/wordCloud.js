@@ -1,6 +1,6 @@
 function createWordCloud(update = false) {
-    const width = 400;
-    const height = 300;
+    const width = 500;
+    const height = 350;
 
     const tagsToUse = getTagsToUse();
     const counts = {};
@@ -41,9 +41,9 @@ function createWordCloud(update = false) {
         .words(sorted_counts.map(
             d => ({text: d[0], size: d[1]})
         ))
-        .padding(5)
+        .padding(10)
         .rotate(0)
-        .fontSize(d => d.size / sorted_counts[0][1] * 49)
+        .fontSize(d => d.size / sorted_counts[0][1] * 50)
         .on("end", draw);
     layout.start();
     
@@ -71,9 +71,10 @@ function createWordCloud(update = false) {
                     enter
                         .append("text")
                         .style("font-size", d => d.size)
-                        .style("fill", _ => `rgb(${Math.random()*256}, ${Math.random()*256}, ${Math.random()*256})`)
+                        .style("fill", d => g_tagToColor[d.text])
                         .attr("text-anchor", "middle")
-                        .style("font-family", "Impact")
+                        .attr("font-family", "Arial")
+                        .attr("font-weight", "bolder")
                         .attr("transform", d => "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")")
                         .text(d => d.text)
                         .on("click", handleClick)
@@ -84,9 +85,10 @@ function createWordCloud(update = false) {
                         .transition()
                         .duration(1000)
                         .style("font-size", d => d.size)
-                        .style("fill", _ => `rgb(${Math.random()*256}, ${Math.random()*256}, ${Math.random()*256})`)
+                        .style("fill", _ => d => g_tagToColor[d.text])
                         .attr("text-anchor", "middle")
-                        .style("font-family", "Impact")
+                        .attr("font-family", "Arial")
+                        .attr("font-weight", "bolder")
                         .attr("transform", d => "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")")
                         .text(d => d.text),
                 exit => 

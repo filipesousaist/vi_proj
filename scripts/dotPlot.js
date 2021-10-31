@@ -16,8 +16,8 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         bottom: 80,
         left: 50
     };
-    const width = 360 - margin.left - margin.right;
-    const height = 300 - margin.top - margin.bottom;
+    const width = 450 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
 
     const x = d3
         .scalePoint()
@@ -81,6 +81,9 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .call(xAxis)
         .selectAll("text")  
         .style("text-anchor", "end")
+        .attr("font-family", "Arial")
+        .attr("font-weight", "bolder")
+        .attr("fill", t => g_tagToColor[t])
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
         .attr("transform", "rotate(-45)");
@@ -93,30 +96,27 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .selectAll("circle")
         .data(data)
         .join(
-            (enter) => {
-                return enter
-                .append("circle")
-                .attr("class", "dot")
-                .attr("r", 3.5)
-                .attr("cx", d => x(d["tag"]))
-                .attr("cy", d => y(d["value"]))
-                .style("fill", d => color(d["type"]))
-                .style("opacity", .5)
-                .append("title")
-                .text(d => d["type"] + ": " + Math.round(d["value"] * 100) / 100);
-            },
-            (update) => {
+            enter =>
+                enter
+                    .append("circle")
+                    .attr("class", "dot")
+                    .attr("r", 3.5)
+                    .attr("cx", d => x(d["tag"]))
+                    .attr("cy", d => y(d["value"]))
+                    .style("fill", d => color(d["type"]))
+                    .style("opacity", .5)
+                    .append("title")
+                    .text(d => d["type"] + ": " + Math.round(d["value"] * 100) / 100),
+            update =>
                 update
-                .attr("class", "dot")
-                .attr("r", 3.5)
-                .attr("cx", d => x(d["tag"]))
-                .attr("cy", d => y(d["value"]))
-                .style("fill", d => color(d["type"]))
-                .append("title")
-                .text(d => d["type"] + ": " + Math.round(d["value"] * 100) / 100);
-            },
-            (exit) => {
-                return exit.remove();
-            }
+                    .attr("class", "dot")
+                    .attr("r", 3.5)
+                    .attr("cx", d => x(d["tag"]))
+                    .attr("cy", d => y(d["value"]))
+                    .style("fill", d => color(d["type"]))
+                    .append("title")
+                    .text(d => d["type"] + ": " + Math.round(d["value"] * 100) / 100),
+            exit =>
+                exit.remove()
         );
 }

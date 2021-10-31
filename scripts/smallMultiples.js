@@ -43,7 +43,7 @@ function createBarChart(data, tag, chartNum, update) {
     data.splice(Math.min(5, data.length));
 
     for (let row of data)
-        row["name"] = g_idToName[row["id"]]
+        row["name"] = g_idToName[row["id"]];
 
 	const margin = { top: 20, right: 20, bottom: 80, left: 40 };
 
@@ -105,7 +105,9 @@ function createBarChart(data, tag, chartNum, update) {
         .select("text.title")
         .text(tag)
         .attr("text-anchor", "middle")
-        .attr("font-family", "sans-serif")
+        .attr("font-family", "Arial")
+        .attr("font-weight", "bolder")
+        .attr("fill", g_tagToColor[tag])
         .attr("x", width / 2);
 
     svg
@@ -114,6 +116,7 @@ function createBarChart(data, tag, chartNum, update) {
         .call(xAxis)
         .selectAll("text")  
         .style("text-anchor", "end")
+        .attr("font-family", "Arial")
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
         .attr("transform", "rotate(-45)");

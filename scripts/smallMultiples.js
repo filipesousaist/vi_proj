@@ -42,14 +42,17 @@ function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
 function createBarChart(data, tag, chartNum, update) {
     data.splice(Math.min(5, data.length));
 
-	const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+    for (let row of data)
+        row["name"] = g_idToName[row["id"]]
+
+	const margin = { top: 20, right: 20, bottom: 80, left: 40 };
 
     const width = 300 - margin.left - margin.right;
-    const height = 150 - margin.top - margin.bottom;
+    const height = 175 - margin.top - margin.bottom;
 
 	const x = d3
         .scaleBand()
-        .domain(data.map(d => d["id"]))
+        .domain(data.map(d => d["name"]))
         .range([0, width])
         .padding(0.4);
 
@@ -65,7 +68,9 @@ function createBarChart(data, tag, chartNum, update) {
 	const yAxis = d3
         .axisLeft()
         .scale(y)
-        .tickSizeOuter(0);
+        .tickSizeOuter(0)
+        .ticks(5)
+        .tickFormat(d => d < 1000 ? d : (d / 1000) + "K");
 
     if (!update)
         d3
@@ -124,18 +129,17 @@ function createBarChart(data, tag, chartNum, update) {
         .join(
             (enter) => enter
                 .append("rect")
-                .attr("x", d => x(d["id"]))
+                .attr("x", d => x(d["name"]))
                 .attr("y", d => y(d["num"]))
                 .attr("width", x.bandwidth())
                 .attr("height", d => height - y(d["num"]))
                 .style("fill", "steelblue"),
             (update) => update
-                .attr("x", d => x(d["id"]))
+                .attr("x", d => x(d["name"]))
                 .attr("y", d => y(d["num"]))
                 .attr("width", x.bandwidth())
                 .attr("height", d => height - y(d["num"]))
                 .style("fill", "steelblue"),
             (exit) => exit.remove()
-        );
-		
+        );	
 }

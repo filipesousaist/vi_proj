@@ -39,17 +39,16 @@ function createWordCloud(update = false) {
         .cloud()
         .size([width, height])
         .words(sorted_counts.map(
-            (d) => { return {text: d[0], size: d[1]}; }
+            d => ({text: d[0], size: d[1]})
         ))
         .padding(5)
         .rotate(0)
         .fontSize(d => d.size / sorted_counts[0][1] * 49)
         .on("end", draw);
     layout.start();
-
     
     function draw(words) {
-        if (!update){
+        if (!update) {
             d3
                 .select("div#word_cloud")
                 .append("svg")
@@ -68,23 +67,19 @@ function createWordCloud(update = false) {
             .selectAll("text")
             .data(words)
             .join(
-                (enter) => {
-                    return enter
+                enter => 
+                    enter
                         .append("text")
                         .style("font-size", d => d.size)
                         .style("fill", _ => `rgb(${Math.random()*256}, ${Math.random()*256}, ${Math.random()*256})`)
                         .attr("text-anchor", "middle")
                         .style("font-family", "Impact")
-                        .attr("transform", function(d) {
-                            return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-                        })
+                        .attr("transform", d => "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")")
                         .text(d => d.text)
                         .on("click", handleClick)
                         .transition()
-                        .duration(2000);
-                    
-                },
-                (update) => {
+                        .duration(2000),
+                update =>
                     update
                         .transition()
                         .duration(1000)
@@ -92,14 +87,10 @@ function createWordCloud(update = false) {
                         .style("fill", _ => `rgb(${Math.random()*256}, ${Math.random()*256}, ${Math.random()*256})`)
                         .attr("text-anchor", "middle")
                         .style("font-family", "Impact")
-                        .attr("transform", function(d) {
-                            return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-                        })
-                        .text(d => d.text);
-                },
-                (exit) => {
-                    return exit.remove();
-                }
+                        .attr("transform", d => "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")")
+                        .text(d => d.text),
+                exit => 
+                    exit.remove()
             )
     }
 }

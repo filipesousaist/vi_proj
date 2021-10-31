@@ -1,49 +1,37 @@
-function createWordCloud(data, update = false) {
+function createWordCloud(update = false) {
     const width = 400;
     const height = 300;
 
+    const tagsToUse = getTagsToUse();
     const counts = {};
 
-    for (let row of data) {
-        for (let tag in row) {
-            if (tag != "id") {
-                var noSelectedTags = false;
-                for (let selectedTag in g_selectedTags){
-                    if (row[g_selectedTags[selectedTag]] != "True"){
-                        noSelectedTags = true;
-                        break;
-                    }
-                }
-                if (noSelectedTags) {
-                    continue;
-                }
-                if (counts[tag] != undefined) {
-                    counts[tag] += (row[tag] == "True") ? 1 : 0;
-                }
-                else {
-                    counts[tag] = (row[tag] == "True") ? 1 : 0;
-                }
+    for (let id of getIdsToUse()) {
+        for (let tag of tagsToUse)
+            if (g_hasTag[id][tag]) {
+                if (counts[tag] != undefined)
+                    counts[tag] ++;
+                else
+                    counts[tag] = 1;
             }
-        }
-    
     }
 
     const sorted_counts_pre_remove = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
     for (let selectedTag of g_selectedTags) {
         console.log(selectedTag);
-        for (var i = 0; i < sorted_counts_pre_remove.length; i++) {
-            if (sorted_counts_pre_remove[i][0] === selectedTag) {
+        for (let i = 0; i < sorted_counts_pre_remove.length; i++) {
+            if (sorted_counts_pre_remove[i][0] == selectedTag) {
                 sorted_counts_pre_remove.splice(i, 1);
                 continue;
             }
         }
     }
 
-    sorted_counts_pre_remove.splice(40)
+    sorted_counts_pre_remove.splice(40);
     
-    const sorted_counts = sorted_counts_pre_remove.filter(function (tag) {
-        return tag[1] > 0;
-    });
+    const sorted_counts = sorted_counts_pre_remove.filter(
+        tag => tag[1] > 0
+    );
 
     console.log(sorted_counts);
 

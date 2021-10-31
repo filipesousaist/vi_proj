@@ -1,5 +1,5 @@
 
-function createSmallMultiples(tags, numAndPeakPlayersPerTag, playerCounts) {
+function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
     // Get top 5 tags by num players
     const topTagsByNumPlayers = getTopTagsByNumPlayers(numAndPeakPlayersPerTag, 5);
 
@@ -12,10 +12,9 @@ function createSmallMultiples(tags, numAndPeakPlayersPerTag, playerCounts) {
     });
 
     // Place in arrays the values for all games that have each of the 5 tags
-    for (let row of tags) {
-        const id = row["id"];
+    for (let id of getIdsToUse()) {
         topTags.forEach(tag => {
-            if (row[tag] == 'True') {
+            if (g_hasTag[id][tag]) {
                 tagsGames[tag].push({
                     "id": id,
                     "num": playerCounts[id]["num"] / playerCounts[id]["n"]
@@ -29,18 +28,24 @@ function createSmallMultiples(tags, numAndPeakPlayersPerTag, playerCounts) {
         tagsGames[tag].sort((pc1, pc2) => pc2["num"] - pc1["num"])
     );
 
+
+
     // Create bar charts
-    for (let i = 0; i < 5; i ++)
-        createBarChart(tagsGames[topTags[i]], i + 1);
+    for (let i = 0; i < 5; i ++) {
+        if (i < topTags.length)
+            createBarChart(tagsGames[topTags[i]], topTags[i], i + 1, update);
+        else
+            createBarChart([], "", i + 1, update)
+    }
 }
 
-function createBarChart(data, chartNum){
-    data.splice(5);
+function createBarChart(data, tag, chartNum, update) {
+    data.splice(Math.min(5, data.length));
 
-	margin = { top: 10, right: 20, bottom: 40, left: 40 };
+	const margin = { top: 20, right: 20, bottom: 40, left: 40 };
 
-    width = 300 - margin.left - margin.right;
-    height = 150 - margin.top - margin.bottom;
+    const width = 300 - margin.left - margin.right;
+    const height = 150 - margin.top - margin.bottom;
 
 	const x = d3
         .scaleBand()
@@ -50,7 +55,7 @@ function createBarChart(data, chartNum){
 
     const y = d3.scaleLinear()
         .domain([0, 1.1 * d3.max(d3.map(data, d => d["num"]))])
-        .range([ height, 0]);
+        .range([height, 0]);
 		
     const xAxis = d3
         .axisBottom()
@@ -61,22 +66,45 @@ function createBarChart(data, chartNum){
         .axisLeft()
         .scale(y)
         .tickSizeOuter(0);
+
+    if (!update)
+        d3
+            .select("div#small" + chartNum)
+            .append("svg")
+            .append("g");
 		
 	const svg = d3
         .select("div#small" + chartNum)
-        .append("svg")
+        .select("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
-        .append("g")
+        .select("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+    if (!update) {
+        svg
+            .append("text")
+            .attr("class", "title");
+        svg
+            .append("g")
+            .attr("class", "xAxis");
+        svg
+            .append("g")
+            .attr("class", "yAxis");
+        svg
+            .append("g")
+            .attr("class", "bars");   
+    }
 
     svg
-        .append("g")
-        .attr("class", "bars");
-	
+        .select("text.title")
+        .text(tag)
+        .attr("text-anchor", "middle")
+        .attr("font-family", "sans-serif")
+        .attr("x", width / 2);
+
     svg
-        .append("g")
-        .attr("class", "x axis")
+        .select("g.xAxis")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis)
         .selectAll("text")  
@@ -86,19 +114,28 @@ function createBarChart(data, chartNum){
         .attr("transform", "rotate(-45)");
 	
     svg
-        .append("g")
-        .attr("class", "y axis")
+        .select("g.yAxis")
         .call(yAxis);
 	
 	svg
 		.select("g.bars")
 		.selectAll("rect")
 		.data(data, d => d["num"])
-		.enter()
-		.append("rect")
-        .attr("x", d => x(d["id"]))
-        .attr("y", d => y(d["num"]))
-        .attr("width", x.bandwidth())
-        .attr("height", d => height - y(d["num"]))
-		.style("fill", "steelblue");
+        .join(
+            (enter) => enter
+                .append("rect")
+                .attr("x", d => x(d["id"]))
+                .attr("y", d => y(d["num"]))
+                .attr("width", x.bandwidth())
+                .attr("height", d => height - y(d["num"]))
+                .style("fill", "steelblue"),
+            (update) => update
+                .attr("x", d => x(d["id"]))
+                .attr("y", d => y(d["num"]))
+                .attr("width", x.bandwidth())
+                .attr("height", d => height - y(d["num"]))
+                .style("fill", "steelblue"),
+            (exit) => exit.remove()
+        );
+		
 }

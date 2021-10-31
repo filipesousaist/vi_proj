@@ -1,4 +1,4 @@
-function createDotPlot(numAndPeakPlayersPerTag, update = false) {  
+function createDotPlot(numAndPeakPlayersPerTag, update) {
     const topTagsByNumPlayers = getTopTagsByNumPlayers(numAndPeakPlayersPerTag, 10);
     
     const data = numAndPeakPlayersPerTag.filter(d => {
@@ -117,5 +117,5 @@ function createDotPlot(numAndPeakPlayersPerTag, update = false) {
             (exit) => {
                 return exit.remove();
             }
-        )
+        );
 }

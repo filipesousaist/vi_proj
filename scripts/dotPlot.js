@@ -1,3 +1,6 @@
+const NUM_PLAYERS_COLOR = "#00ABFF";
+const PEAK_PLAYERS_COLOR = "#EE6666";
+
 function createDotPlot(numAndPeakPlayersPerTag, update) {
     const topTagsByNumPlayers = getTopTagsByNumPlayers(numAndPeakPlayersPerTag, 10);
     
@@ -36,7 +39,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
     const color = d3
         .scaleOrdinal(
             ["value", "peak"], 
-            ["#0000FF", "#FF0000"]
+            [NUM_PLAYERS_COLOR, PEAK_PLAYERS_COLOR]
         );
 
     const xAxis = d3
@@ -73,6 +76,41 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         svg
             .append("g")
             .attr("class", "yAxis");
+        
+        legend = d3.select("#dot_plot_legend")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", (height + margin.top + margin.bottom) / 5);
+
+        legend
+            .append("circle")
+            .attr("r", 6)
+            .attr("cx", 75)
+            .attr("cy", 9)
+            .attr("fill", NUM_PLAYERS_COLOR);
+            
+        legend
+            .append("text")
+            .attr("dx", 83)
+            .attr("dy", 15)
+            .style("font-family", "Arial")
+            .style("font-weight", "bolder")
+            .text("No. players (avg.)");
+        
+        legend
+            .append("circle")
+            .attr("r", 6)
+            .attr("cx", 245)
+            .attr("cy", 9)
+            .attr("fill", PEAK_PLAYERS_COLOR);
+            
+        legend
+            .append("text")
+            .attr("dx", 253)
+            .attr("dy", 15)
+            .style("font-family", "Arial")
+            .style("font-weight", "bolder")
+            .text("Peak players (avg.)");
     }
     
     svg
@@ -104,7 +142,6 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
                     .attr("cx", d => x(d["tag"]))
                     .attr("cy", d => y(d["value"]))
                     .style("fill", d => color(d["type"]))
-                    .style("opacity", .5)
                     .append("title")
                     .text(d => d["type"] + ": " + Math.round(d["value"] * 100) / 100),
             update =>
@@ -119,4 +156,6 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             exit =>
                 exit.remove()
         );
+
+    
 }

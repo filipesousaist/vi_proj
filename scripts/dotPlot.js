@@ -36,7 +36,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
     const color = d3
         .scaleOrdinal(
             ["value", "peak"], 
-            ["#0000FF", "#FF0000"]
+            ["#00ABFF", "#FF0000"]
         );
 
     const xAxis = d3
@@ -73,6 +73,41 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         svg
             .append("g")
             .attr("class", "yAxis");
+        
+        legend = d3.select("#dot_plot_legend")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", (height + margin.top + margin.bottom) / 5)
+
+        legend
+            .append("circle")
+            .attr("r", 6)
+            .attr("cx", 40)
+            .attr("cy", 9)
+            .attr("fill", "#00ABFF")
+            
+        legend
+            .append("text")
+            .attr("dx", 48)
+            .attr("dy", 15)
+            .style("font-family", "sans-serif")
+            .text("No. players (avg.)")
+        
+        legend
+            .append("circle")
+            .attr("r", 6)
+            .attr("cx", 200)
+            .attr("cy", 9)
+            .attr("fill", "#FF0000")
+            
+        legend
+            .append("text")
+            .attr("dx", 208)
+            .attr("dy", 15)
+            .style("font-family", "sans-serif")
+            .text("Peak players (avg.)")
+
+
     }
     
     svg
@@ -101,7 +136,6 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
                 .attr("cx", d => x(d["tag"]))
                 .attr("cy", d => y(d["value"]))
                 .style("fill", d => color(d["type"]))
-                .style("opacity", .5)
                 .append("title")
                 .text(d => d["type"] + ": " + Math.round(d["value"] * 100) / 100);
             },
@@ -119,4 +153,6 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
                 return exit.remove();
             }
         );
+
+    
 }

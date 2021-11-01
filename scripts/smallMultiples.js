@@ -1,4 +1,10 @@
 
+const margin = { top: 20, right: 20, bottom: 80, left: 40 };
+
+const width = 300 - margin.left - margin.right;
+const height = 150 - margin.top - margin.bottom;
+const titleHeight = 50;
+
 function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
     // Get top 5 tags by num players
     const topTagsByNumPlayers = getTopTagsByNumPlayers(numAndPeakPlayersPerTag, 5);
@@ -35,19 +41,32 @@ function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
         else
             createBarChart([], "", i + 1, update)
     }
+
+    if (!update)
+        d3
+            .select("div#barcharts_title")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", titleHeight)
+            .append("text")
+            .text("Most Popular Games")
+            .attr("transform", "translate(" + (width + margin.left + margin.right) / 2 + "," + titleHeight / 2 + ")")
+            .attr("text-anchor", "middle")
+            .attr("text-decoration", "underline")
+            .attr("font-size", "25")
+            .attr("font-family", "Arial")
+            .attr("font-weight", "bolder");
 }
 
 function createBarChart(data, tag, chartNum, update) {
     data.splice(Math.min(5, data.length));
 
-	const margin = { top: 20, right: 20, bottom: 40, left: 40 };
-
-    const width = 300 - margin.left - margin.right;
-    const height = 150 - margin.top - margin.bottom;
+    for (let row of data)
+        row["name"] = g_idToName[row["id"]];
 
 	const x = d3
         .scaleBand()
-        .domain(data.map(d => d["id"]))
+        .domain(data.map(d => d["name"]))
         .range([0, width])
         .padding(0.4);
 
@@ -63,7 +82,9 @@ function createBarChart(data, tag, chartNum, update) {
 	const yAxis = d3
         .axisLeft()
         .scale(y)
-        .tickSizeOuter(0);
+        .tickSizeOuter(0)
+        .ticks(5)
+        .tickFormat(d => d < 1000 ? d : (d / 1000) + "K");
 
     if (!update)
         d3
@@ -98,7 +119,9 @@ function createBarChart(data, tag, chartNum, update) {
         .select("text.title")
         .text(tag)
         .attr("text-anchor", "middle")
-        .attr("font-family", "sans-serif")
+        .attr("font-family", "Arial")
+        .attr("font-weight", "bolder")
+        .attr("fill", g_tagToColor[tag])
         .attr("x", width / 2);
 
     svg
@@ -107,6 +130,7 @@ function createBarChart(data, tag, chartNum, update) {
         .call(xAxis)
         .selectAll("text")  
         .style("text-anchor", "end")
+        .attr("font-family", "Arial")
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
         .attr("transform", "rotate(-45)");
@@ -122,18 +146,21 @@ function createBarChart(data, tag, chartNum, update) {
         .join(
             (enter) => enter
                 .append("rect")
-                .attr("x", d => x(d["id"]))
+                .attr("x", d => x(d["name"]))
                 .attr("y", d => y(d["num"]))
                 .attr("width", x.bandwidth())
                 .attr("height", d => height - y(d["num"]))
-                .style("fill", "steelblue"),
+                .attr("fill", g_tagToColor[tag])
+                .append("title")
+                .text(d => d["name"] + ": " + round(d["num"], 2)),
             (update) => update
-                .attr("x", d => x(d["id"]))
+                .attr("x", d => x(d["name"]))
                 .attr("y", d => y(d["num"]))
                 .attr("width", x.bandwidth())
                 .attr("height", d => height - y(d["num"]))
-                .style("fill", "steelblue"),
+                .attr("fill", g_tagToColor[tag])
+                .select("title")
+                .text(d => d["name"] + ": " + round(d["num"], 2)),
             (exit) => exit.remove()
-        );
-		
+        );	
 }

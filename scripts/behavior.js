@@ -1,3 +1,14 @@
+// **** Constants ****
+
+const TAG_COLORS = [
+    "#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd","#8c564b","#e377c2","#7f7f7f","#bcbd22","#17becf", // Category10
+    "#1b9e77","#d95f02","#7570b3","#e7298a","#66a61e","#e6ab02","#a6761d","#666666", // Dark2
+    //"#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3","#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd","#ccebc5","#ffed6f", // Set3
+    //"#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab" // Tableau10
+];
+
+const NUM_TAG_COLORS = TAG_COLORS.length;
+
 // **** Global variables ****
 
 // Currently selected tags in the word cloud
@@ -8,11 +19,13 @@ let g_useTag;
 // For each id, whether that game has all of the selected tags
 let g_useId;
 
+
 // **** Global constants ****
 
 // Datasets (without any changes or filters)
 let g_tags;
 let g_playerCountHistory;
+let g_info;
 
 // Array with all tags
 let g_allTags;
@@ -22,19 +35,29 @@ let g_allIds;
 // For each id, whether or not it has each tag
 let g_hasTag;
 
+// For each id, its name
+let g_idToName;
+
+// For each tag, its color
+let g_tagToColor;
+
 // **** Functions ****
 
 function init() {
     Promise
     .all([
         d3.csv("data/tags.csv"), 
-        d3.csv("data/playerCountHistory.csv")
+        d3.csv("data/playerCountHistory.csv"),
+        d3.csv("data/information.csv")
     ])
-    .then(([tags, playerCountHistory, gamesInfo]) => {
+    .then(([tags, playerCountHistory, info]) => {
         g_tags = tags;
         g_playerCountHistory = playerCountHistory;
-        [g_allTags, g_allIds] = getAllTagsAndIds(g_tags);
-        g_hasTag = createHasTagDict(g_tags);
+        g_info = info;
+        [g_allTags, g_allIds] = getAllTagsAndIds();
+        g_hasTag = createHasTagDict();
+        g_idToName = createIdToNameDict();
+        g_tagToColor = createTagToColorDict();
         
         updatePlots(false);
     })
@@ -43,30 +66,48 @@ function init() {
     });
 }
 
-function getAllTagsAndIds(tags) {
-    const allTags = Object.getOwnPropertyNames(tags[0]);
+function getAllTagsAndIds() {
+    const allTags = Object.getOwnPropertyNames(g_tags[0]);
     allTags.splice(allTags.indexOf("id"), 1);
 
     const allIds = [];
-    tags.forEach(row => 
+    g_tags.forEach(row => 
         allIds.push(row["id"])
     );
 
     return [allTags, allIds];
 }
 
-function createHasTagDict(tags) {
+function createHasTagDict() {
     const hasTag = {};
 
-    for (let row of tags) {
+    for (let row of g_tags) {
         const id = row["id"];
         hasTag[id] = {};
         for (let tag in row)
             if (tag != "id")
-                hasTag[id][tag] = (row[tag] == "True") ? true : false;
+                hasTag[id][tag] = (row[tag] == "True");
     }
 
     return hasTag;
+}
+
+function createIdToNameDict() {
+    const idToName = {};
+
+    for (let row of g_info)
+        idToName[row["appid"]] = row["name"];
+
+    return idToName;
+}
+
+function createTagToColorDict() {
+    const tagToColor = {};
+
+    for (let i = 0; i < g_allTags.length; i ++)
+        tagToColor[g_allTags[i]] = TAG_COLORS[i % NUM_TAG_COLORS];
+
+    return tagToColor;
 }
 
 function getIdsToUse() {
@@ -87,11 +128,11 @@ function getTagsToUse() {
     return tagsToUse;
 }
 
-function filterBySelectedTags(playerCountHistory, hasTag, selectedTags) {
-    return playerCountHistory.filter(row => {
+function filterBySelectedTags() {
+    return g_playerCountHistory.filter(row => {
         const id = row["appid"];
-        for (let tag of selectedTags)
-            if (!hasTag[id][tag])
+        for (let tag of g_selectedTags)
+            if (!g_hasTag[id][tag])
                 return false;
         return true;
     });
@@ -141,18 +182,14 @@ function computePlayerCounts(playerCountHistory) {
 
 function getNumAndPeakPlayersPerTag(playerCounts) {
     const idsToUse = getIdsToUse();
-
-    //console.log("idsToUse", idsToUse);
-    //console.log("getTagsToUse", getTagsToUse());
-    
-    const data = [];
-
     const tagsToUse = getTagsToUse().filter(tag => {
         for (let selectedTag of g_selectedTags)
             if (tag == selectedTag)
                 return false;
         return true;
     });
+
+    const data = [];
 
     for (let tag of tagsToUse) {
         let n = 0;
@@ -202,12 +239,10 @@ function reset() {
 }
 
 function updatePlots(update = true) {
-    const filteredPCH = filterBySelectedTags(g_playerCountHistory, g_hasTag, g_selectedTags);
+    const filteredPCH = filterBySelectedTags();
     [g_useTag, g_useId] = filterTagsAndIds(filteredPCH);
     const playerCounts = computePlayerCounts(filteredPCH);
     const numAndPeakPlayersPerTag = getNumAndPeakPlayersPerTag(playerCounts);
-    
-    //console.log("numAndPeakPlayersPerTag", numAndPeakPlayersPerTag);
 
     createWordCloud(update);
     createDotPlot(numAndPeakPlayersPerTag, update);

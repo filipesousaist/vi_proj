@@ -30,7 +30,7 @@ function init() {
         d3.csv("data/tags.csv"), 
         d3.csv("data/playerCountHistory.csv")
     ])
-    .then(([tags, playerCountHistory]) => {
+    .then(([tags, playerCountHistory, gamesInfo]) => {
         g_tags = tags;
         g_playerCountHistory = playerCountHistory;
         [g_allTags, g_allIds] = getAllTagsAndIds(g_tags);
@@ -142,8 +142,8 @@ function computePlayerCounts(playerCountHistory) {
 function getNumAndPeakPlayersPerTag(playerCounts) {
     const idsToUse = getIdsToUse();
 
-    console.log("idsToUse", idsToUse);
-    console.log("getTagsToUse", getTagsToUse());
+    //console.log("idsToUse", idsToUse);
+    //console.log("getTagsToUse", getTagsToUse());
     
     const data = [];
 
@@ -189,14 +189,15 @@ function getTopTagsByNumPlayers(numAndPeakPlayersPerTag, n) {
 function handleClick(_, d) {
     if (!g_selectedTags.includes(d.text)){
         g_selectedTags.push(d.text);
-
+        updateTagBox(d.text);
         updatePlots();
     }
 }
 
 function reset() {
     g_selectedTags = [];
-
+    clearTags();
+    clearTagBox();
     updatePlots();
 }
 
@@ -206,7 +207,7 @@ function updatePlots(update = true) {
     const playerCounts = computePlayerCounts(filteredPCH);
     const numAndPeakPlayersPerTag = getNumAndPeakPlayersPerTag(playerCounts);
     
-    console.log("numAndPeakPlayersPerTag", numAndPeakPlayersPerTag);
+    //console.log("numAndPeakPlayersPerTag", numAndPeakPlayersPerTag);
 
     createWordCloud(update);
     createDotPlot(numAndPeakPlayersPerTag, update);

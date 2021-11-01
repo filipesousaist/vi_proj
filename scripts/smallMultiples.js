@@ -28,8 +28,6 @@ function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
         tagsGames[tag].sort((pc1, pc2) => pc2["num"] - pc1["num"])
     );
 
-
-
     // Create bar charts
     for (let i = 0; i < 5; i ++) {
         if (i < topTags.length)

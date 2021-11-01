@@ -1,4 +1,10 @@
 
+const margin = { top: 20, right: 20, bottom: 80, left: 40 };
+
+const width = 300 - margin.left - margin.right;
+const height = 150 - margin.top - margin.bottom;
+const titleHeight = 50;
+
 function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
     // Get top 5 tags by num players
     const topTagsByNumPlayers = getTopTagsByNumPlayers(numAndPeakPlayersPerTag, 5);
@@ -28,8 +34,6 @@ function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
         tagsGames[tag].sort((pc1, pc2) => pc2["num"] - pc1["num"])
     );
 
-
-
     // Create bar charts
     for (let i = 0; i < 5; i ++) {
         if (i < topTags.length)
@@ -37,6 +41,21 @@ function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
         else
             createBarChart([], "", i + 1, update)
     }
+
+    if (!update)
+        d3
+            .select("div#barcharts_title")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", titleHeight)
+            .append("text")
+            .text("Most Popular Games")
+            .attr("transform", "translate(" + (width + margin.left + margin.right) / 2 + "," + titleHeight / 2 + ")")
+            .attr("text-anchor", "middle")
+            .attr("text-decoration", "underline")
+            .attr("font-size", "25")
+            .attr("font-family", "Arial")
+            .attr("font-weight", "bolder");
 }
 
 function createBarChart(data, tag, chartNum, update) {
@@ -44,11 +63,6 @@ function createBarChart(data, tag, chartNum, update) {
 
     for (let row of data)
         row["name"] = g_idToName[row["id"]];
-
-	const margin = { top: 20, right: 20, bottom: 80, left: 40 };
-
-    const width = 300 - margin.left - margin.right;
-    const height = 175 - margin.top - margin.bottom;
 
 	const x = d3
         .scaleBand()
@@ -136,13 +150,17 @@ function createBarChart(data, tag, chartNum, update) {
                 .attr("y", d => y(d["num"]))
                 .attr("width", x.bandwidth())
                 .attr("height", d => height - y(d["num"]))
-                .style("fill", "steelblue"),
+                .attr("fill", g_tagToColor[tag])
+                .append("title")
+                .text(d => d["name"] + ": " + round(d["num"], 2)),
             (update) => update
                 .attr("x", d => x(d["name"]))
                 .attr("y", d => y(d["num"]))
                 .attr("width", x.bandwidth())
                 .attr("height", d => height - y(d["num"]))
-                .style("fill", "steelblue"),
+                .attr("fill", g_tagToColor[tag])
+                .select("title")
+                .text(d => d["name"] + ": " + round(d["num"], 2)),
             (exit) => exit.remove()
         );	
 }

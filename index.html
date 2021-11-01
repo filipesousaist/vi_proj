@@ -15,6 +15,7 @@
 	
 		<!-- JS -->
 		<script language="JavaScript" type="text/javascript" src="scripts/behavior.js"></script>
+		<script language="JavaScript" type="text/javascript" src="scripts/math.js"></script>
 		<script language="JavaScript" type="text/javascript" src="scripts/wordCloud.js"></script>
 		<script language="JavaScript" type="text/javascript" src="scripts/dotPlot.js"></script>
 		<script language="JavaScript" type="text/javascript" src="scripts/smallMultiples.js"></script>
@@ -25,14 +26,17 @@
 
 	<body onload="init();">
 		<div>
+			<div id="word_cloud_title"></div>
 			<div id="word_cloud"></div>
 			<button onclick="reset()">Reset</button>
 		</div>
 		<div>
+			<div id="dot_plot_title"></div>
 			<div id="dot_plot"></div>
 			<div id="dot_plot_legend"></div>
 		</div>
 		<div id="barcharts">
+			<div id="barcharts_title"></div>
 			<div id="small1"></div> 
 			<div id="small2"></div> 
 			<div id="small3"></div>

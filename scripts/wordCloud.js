@@ -1,6 +1,7 @@
 function createWordCloud(update = false) {
     const width = 500;
     const height = 350;
+    const titleHeight = 50;
 
     const tagsToUse = getTagsToUse();
     const counts = {};
@@ -37,7 +38,7 @@ function createWordCloud(update = false) {
 
     const layout = d3.layout
         .cloud()
-        .size([width, height])
+        .size([width, height - titleHeight])
         .words(sorted_counts.map(
             d => ({text: d[0], size: d[1]})
         ))
@@ -53,6 +54,7 @@ function createWordCloud(update = false) {
                 .select("div#word_cloud")
                 .append("svg")
                 .append("g")
+                .attr("class", "words");
         }
     
         const svg = d3
@@ -61,8 +63,23 @@ function createWordCloud(update = false) {
             .attr("width", width)
             .attr("height", height);
 
+        if (!update)
+            d3
+                .select("div#word_cloud_title")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", titleHeight)
+                .append("text")
+                .text("Most Frequent Tags")
+                .attr("transform", "translate(" + width / 2 + "," + titleHeight / 2 + ")")
+                .attr("text-anchor", "middle")
+                .attr("text-decoration", "underline")
+                .attr("font-size", "25")
+                .attr("font-family", "Arial")
+                .attr("font-weight", "bolder");
+
         svg
-            .select("g")
+            .select("g.words")
             .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
             .selectAll("text")
             .data(words)

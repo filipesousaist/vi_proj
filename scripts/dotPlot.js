@@ -14,13 +14,14 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
     data.sort((pc1, pc2) => pc2["value"] - pc1["value"]);
     
     const margin = {
-        top: 30,
+        top: 5,
         right: 20,
         bottom: 80,
-        left: 50
+        left: 30
     };
     const width = 450 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
+    const titleHeight = 50;
 
     const x = d3
         .scalePoint()
@@ -62,6 +63,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
 
     const svg = d3
         .select("div#dot_plot")
+        .attr("transform", "translate(0," + titleHeight + ")")
         .select("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
@@ -69,6 +71,20 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     if (!update) {
+        d3
+            .select("div#dot_plot_title")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", titleHeight)
+            .append("text")
+            .text("Most Popular Tags")
+            .attr("transform", "translate(" + (width + margin.left + margin.right) / 2 + "," + titleHeight / 2 + ")")
+            .attr("text-anchor", "middle")
+            .attr("text-decoration", "underline")
+            .attr("font-size", "25")
+            .attr("font-family", "Arial")
+            .attr("font-weight", "bolder");
+        
         svg
             .append("g")
             .attr("class", "xAxis");
@@ -80,7 +96,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         legend = d3.select("#dot_plot_legend")
             .append("svg")
             .attr("width", width + margin.left + margin.right)
-            .attr("height", (height + margin.top + margin.bottom) / 5);
+            .attr("height", 30);
 
         legend
             .append("circle")
@@ -95,7 +111,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             .attr("dy", 15)
             .style("font-family", "Arial")
             .style("font-weight", "bolder")
-            .text("No. players (avg.)");
+            .text(typeToText("num"));
         
         legend
             .append("circle")
@@ -110,7 +126,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             .attr("dy", 15)
             .style("font-family", "Arial")
             .style("font-weight", "bolder")
-            .text("Peak players (avg.)");
+            .text(typeToText("peak"));
     }
     
     svg
@@ -143,7 +159,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
                     .attr("cy", d => y(d["value"]))
                     .style("fill", d => color(d["type"]))
                     .append("title")
-                    .text(d => d["type"] + ": " + Math.round(d["value"] * 100) / 100),
+                    .text(d => d["tag"] + "\n" + typeToText(d["type"]) + ": " + round(d["value"], 2)),
             update =>
                 update
                     .attr("class", "dot")
@@ -151,11 +167,13 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
                     .attr("cx", d => x(d["tag"]))
                     .attr("cy", d => y(d["value"]))
                     .style("fill", d => color(d["type"]))
-                    .append("title")
-                    .text(d => d["type"] + ": " + Math.round(d["value"] * 100) / 100),
+                    .select("title")
+                    .text(d => d["tag"] + "\n" + typeToText(d["type"]) + ": " + round(d["value"], 2)),
             exit =>
                 exit.remove()
         );
+}
 
-    
+function typeToText(type) {
+    return (type == "num") ? "No. players (avg.)" : "Peak players (avg.)"
 }

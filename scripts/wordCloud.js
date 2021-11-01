@@ -39,7 +39,7 @@ function createWordCloud(update = false) {
         ))
         .padding(10)
         .rotate(0)
-        .fontSize(d => Math.sqrt(d.size / sorted_counts[0][1]) * 30)
+        .fontSize(d => Math.round(Math.sqrt(d.size / sorted_counts[0][1]) * 30))
         .on("end", draw);
     layout.start();
     
@@ -82,30 +82,41 @@ function createWordCloud(update = false) {
                 enter => 
                     enter
                         .append("text")
-                        .style("font-size", d => d.size)
-                        .style("fill", d => g_tagToColor[d.text])
+                        .on("click", handleClick)
+                        .transition()
+                        .duration(500)
+                        .attr("transform", "scale(0)")
+                        .transition()
+                        .duration(500)
+                        .attr("transform", "scale(1)")
+                        .attr("font-size", d => d.size)
+                        .attr("fill", d => g_tagToColor[d.text])
                         .attr("text-anchor", "middle")
                         .attr("font-family", "Arial")
                         .attr("font-weight", "bolder")
                         .attr("transform", d => "translate(" + [d.x, d.y] + ")")
-                        .text(d => d.text)
-                        .on("click", handleClick)
-                        .transition()
-                        .duration(2000),
+                        .text(d => d.text),
                 update =>
                     update
                         .transition()
-                        .duration(1000)
-                        .style("font-size", d => d.size)
-                        .style("fill", _ => d => g_tagToColor[d.text])
+                        .duration(500)
+                        .attr("transform", "scale(0)")
+                        .transition()
+                        .duration(500)
+                        .attr("transform", "scale(1)")
+                        .attr("font-size", d => {console.log(d.size); return d.size; })
+                        .attr("fill", d => g_tagToColor[d.text])
                         .attr("text-anchor", "middle")
                         .attr("font-family", "Arial")
                         .attr("font-weight", "bolder")
                         .attr("transform", d => "translate(" + [d.x, d.y] + ")")
-                        .text(d => d.text)
-                        ,
+                        .text(d => d.text),
                 exit => 
-                    exit.remove()
+                    exit
+                        .transition()
+                        .duration(500)
+                        .attr("transform", "scale(0)")
+                        .remove()
             );
     }
 }

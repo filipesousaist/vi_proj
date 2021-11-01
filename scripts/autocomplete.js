@@ -18,25 +18,31 @@ function autocomplete(inp) {
       this.parentNode.appendChild(a);
       /*for each item in the array...*/
       for (i = 0; i < g_suggestedTags.length; i++) {
-        /*check if the item starts with the same letters as the text field value:*/
-        if (g_suggestedTags[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
-          /*create a DIV element for each matching element:*/
-          b = document.createElement("div");
-          /*make the matching letters bold:*/
-          b.innerHTML = "<strong>" + g_suggestedTags[i].substr(0, val.length) + "</strong>";
-          b.innerHTML += g_suggestedTags[i].substr(val.length);
-          /*insert a input field that will hold the current array item's value:*/
-          b.innerHTML += "<input type='hidden' value='" + g_suggestedTags[i] + "'>";
-          /*execute a function when someone clicks on the item value (DIV element):*/
-          b.addEventListener("click", function(e) {
-              /*insert the value for the autocomplete text field:*/
-              inp.value = this.getElementsByTagName("input")[0].value;
-              /*close the list of autocompleted values,
-              (or any other open lists of autocompleted values:*/
-              closeAllLists();
-          });
-          a.appendChild(b);
-        }
+        const tag = g_suggestedTags[i];
+        for (let start = 0; start <= tag.length - val.length; start ++) {
+          /*check if the item starts with the same letters as the text field value:*/
+          console.log(tag, start, tag.substr(start, val.length).toUpperCase());
+          if (tag.substr(start, val.length).toUpperCase() == val.toUpperCase()) {
+            /*create a DIV element for each matching element:*/
+            b = document.createElement("div");
+            /*make the matching letters bold:*/
+            b.innerHTML = tag.substr(0, start);
+            b.innerHTML += "<strong>" + tag.substr(start, val.length) + "</strong>";
+            b.innerHTML += tag.substr(val.length + start);
+            /*insert a input field that will hold the current array item's value:*/
+            b.innerHTML += "<input type='hidden' value='" + tag + "'>";
+            /*execute a function when someone clicks on the item value (DIV element):*/
+            b.addEventListener("click", function(e) {
+                /*insert the value for the autocomplete text field:*/
+                inp.value = this.getElementsByTagName("input")[0].value;
+                /*close the list of autocompleted values,
+                (or any other open lists of autocompleted values:*/
+                closeAllLists();
+            });
+            a.appendChild(b);
+            break;
+          }
+        }   
       }
   });
   /*execute a function presses a key on the keyboard:*/

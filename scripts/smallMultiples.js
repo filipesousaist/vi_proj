@@ -174,6 +174,7 @@ function handleClickSmallMultiplesTitle(_, d) {
         updateTagBox(d);
         updatePlots();
         removeShineFromTag();
+        updateSuggestedTags(d, false, false);
     }
 }
 

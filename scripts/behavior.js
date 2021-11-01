@@ -226,14 +226,15 @@ function getTopTagsByNumPlayers(numAndPeakPlayersPerTag, n) {
 function handleClick(_, d) {
     if (!g_selectedTags.includes(d.text)){
         g_selectedTags.push(d.text);
-
+        updateTagBox(d.text);
         updatePlots();
     }
 }
 
 function reset() {
     g_selectedTags = [];
-
+    clearTags();
+    clearTagBox();
     updatePlots();
 }
 

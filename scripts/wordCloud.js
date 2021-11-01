@@ -19,7 +19,7 @@ function createWordCloud(update = false) {
     const sorted_counts_pre_remove = Object.entries(counts).sort((a, b) => b[1] - a[1]);
 
     for (let selectedTag of g_selectedTags) {
-        console.log(selectedTag);
+        //console.log(selectedTag);
         for (let i = 0; i < sorted_counts_pre_remove.length; i++) {
             if (sorted_counts_pre_remove[i][0] == selectedTag) {
                 sorted_counts_pre_remove.splice(i, 1);
@@ -34,7 +34,7 @@ function createWordCloud(update = false) {
         tag => tag[1] > 0
     );
 
-    console.log(sorted_counts);
+    //console.log(sorted_counts);
 
     const layout = d3.layout
         .cloud()

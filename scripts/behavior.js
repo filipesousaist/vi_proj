@@ -228,12 +228,42 @@ function getTopTagsByNumPlayers(numAndPeakPlayersPerTag, n) {
     return data_num;
 }
 
-function handleClick(_, d) {
-    if (!g_selectedTags.includes(d.text)){
-        g_selectedTags.push(d.text);
-        updateTagBox(d.text);
-        updatePlots();
-    }
+function addShineToTag(tag) {
+    d3
+        .select("div#word_cloud")
+        .select(".words")
+        .selectAll("text")
+        .classed("word-shine", d => d.text == tag);
+
+    d3
+        .select("div#dot_plot")
+        .select(".xAxis")
+        .selectAll("text")
+        .classed("word-shine", d => d == tag);
+
+    d3
+        .select("div#barcharts")
+        .selectAll(".title")
+        .classed("word-shine", d => d == tag);
+}
+
+function removeShineFromTag() {
+    d3
+        .select("div#word_cloud")
+        .select(".words")
+        .selectAll("text")
+        .classed("word-shine", false);
+
+    d3
+        .select("div#dot_plot")
+        .select(".xAxis")
+        .selectAll("text")
+        .classed("word-shine", false);
+
+    d3
+        .select("div#barcharts")
+        .selectAll(".title")
+        .classed("word-shine", false);
 }
 
 function reset() {

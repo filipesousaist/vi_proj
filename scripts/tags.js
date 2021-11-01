@@ -7,7 +7,6 @@ let tags = [];
 function createTag(label) {
   const div = document.createElement('div');
   div.setAttribute('class', 'tag');
-  //div.setAttribute('style', 'background-color: ' + g_tagToColor[label] + ';');
   
 	const span = document.createElement('span');
   span.innerHTML = label;

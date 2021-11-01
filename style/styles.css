@@ -31,7 +31,7 @@ div {
     /*box-shadow: 0 0 4px rgba(0, 0, 0, 0.2), inset 0 1px 1px #fff;*/
     display: flex;
     align-items: center;
-    cursor: pointer;
+    /*cursor: pointer;*/
 }
 
 
@@ -60,6 +60,7 @@ div {
 
 .tag-container .tag .close:hover:after{
     color: red;
+    cursor: pointer;
 }
 
 ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
@@ -85,9 +86,9 @@ div {
     top: 100%;
     left: 0;
     right: 0;
-  }
+}
   
-  .autocomplete-items div {
+.autocomplete-items div {
     display: block;
     padding: 10px;
     cursor: pointer;
@@ -95,15 +96,20 @@ div {
     border: 1px solid #d4d4d4; 
     font-family: Arial;
     font-size: 14px;
-  }
+}
   
-  /*when hovering an item:*/
-  .autocomplete-items div:hover {
+/*when hovering an item:*/
+.autocomplete-items div:hover {
     background-color: #e9e9e9; 
-  }
+}
   
-  /*when navigating through the items using the arrow keys:*/
-  .autocomplete-active {
+/*when navigating through the items using the arrow keys:*/
+.autocomplete-active {
     background-color: DodgerBlue !important; 
     color: #ffffff; 
-  }
+}
+
+.word-shine {
+    cursor: pointer;
+    text-shadow:  0 5px yellow, 0 0 15px yellow, 0 0 30px yellow;
+}

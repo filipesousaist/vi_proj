@@ -17,7 +17,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         top: 5,
         right: 20,
         bottom: 80,
-        left: 30
+        left: 40
     };
     const width = 450 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
@@ -140,7 +140,10 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .attr("fill", t => g_tagToColor[t])
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
-        .attr("transform", "rotate(-45)");
+        .attr("transform", "rotate(-45)")
+        .on("click", handleClickDotPlotTags)
+        .on("mouseover", handleMouseOverDotPlotTags)
+        .on("mouseout", handleMouseOutDotPlotTags);
 
     svg
         .select("g.yAxis")
@@ -176,4 +179,21 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
 
 function typeToText(type) {
     return (type == "num") ? "No. players (avg.)" : "Peak players (avg.)"
+}
+
+function handleClickDotPlotTags(_, d) {
+    if (!g_selectedTags.includes(d)){
+        g_selectedTags.push(d);
+        updateTagBox(d);
+        updatePlots();
+        removeShineFromTag();
+    }
+}
+
+function handleMouseOverDotPlotTags(_, d) {
+    addShineToTag(d);
+}
+
+function handleMouseOutDotPlotTags() {
+    removeShineFromTag();
 }

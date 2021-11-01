@@ -52,7 +52,7 @@ document.addEventListener('click', (e) => {
 			g_selectedTags.splice(i, 1);
 			updatePlots();
 		}
-    tags = [...tags.slice(0, index), ...tags.slice(index+1)];
+    tags.splice(index, 1);
     addTags();
 
   }

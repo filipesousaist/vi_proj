@@ -18,15 +18,12 @@ function createWordCloud(update = false) {
 
     const sorted_counts_pre_remove = Object.entries(counts).sort((a, b) => b[1] - a[1]);
 
-    for (let selectedTag of g_selectedTags) {
-        //console.log(selectedTag);
-        for (let i = 0; i < sorted_counts_pre_remove.length; i++) {
+    for (let selectedTag of g_selectedTags)
+        for (let i = 0; i < sorted_counts_pre_remove.length; i++)
             if (sorted_counts_pre_remove[i][0] == selectedTag) {
                 sorted_counts_pre_remove.splice(i, 1);
                 continue;
             }
-        }
-    }
 
     sorted_counts_pre_remove.splice(40);
     
@@ -34,17 +31,15 @@ function createWordCloud(update = false) {
         tag => tag[1] > 0
     );
 
-    //console.log(sorted_counts);
-
     const layout = d3.layout
         .cloud()
-        .size([width, height - titleHeight])
+        .size([width, height])
         .words(sorted_counts.map(
             d => ({text: d[0], size: d[1]})
         ))
         .padding(10)
         .rotate(0)
-        .fontSize(d => d.size / sorted_counts[0][1] * 50)
+        .fontSize(d => Math.sqrt(d.size / sorted_counts[0][1]) * 30)
         .on("end", draw);
     layout.start();
     
@@ -92,7 +87,7 @@ function createWordCloud(update = false) {
                         .attr("text-anchor", "middle")
                         .attr("font-family", "Arial")
                         .attr("font-weight", "bolder")
-                        .attr("transform", d => "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")")
+                        .attr("transform", d => "translate(" + [d.x, d.y] + ")")
                         .text(d => d.text)
                         .on("click", handleClick)
                         .transition()
@@ -106,10 +101,11 @@ function createWordCloud(update = false) {
                         .attr("text-anchor", "middle")
                         .attr("font-family", "Arial")
                         .attr("font-weight", "bolder")
-                        .attr("transform", d => "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")")
-                        .text(d => d.text),
+                        .attr("transform", d => "translate(" + [d.x, d.y] + ")")
+                        .text(d => d.text)
+                        ,
                 exit => 
                     exit.remove()
-            )
+            );
     }
 }

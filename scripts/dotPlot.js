@@ -17,7 +17,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         top: 5,
         right: 20,
         bottom: 80,
-        left: 30
+        left: 40
     };
     const width = 450 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;

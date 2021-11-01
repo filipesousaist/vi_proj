@@ -82,7 +82,10 @@ function createWordCloud(update = false) {
                 enter => 
                     enter
                         .append("text")
-                        .on("click", handleClick)
+                        .call(() => {console.log(this);})
+                        .on("click", handleClickWordCloud)
+                        .on("mouseover", handleMouseOverWordCloud)
+                        .on("mouseout", handleMouseOutWordCloud)
                         .transition()
                         .duration(500)
                         .attr("transform", "scale(0)")
@@ -104,7 +107,7 @@ function createWordCloud(update = false) {
                         .transition()
                         .duration(500)
                         .attr("transform", "scale(1)")
-                        .attr("font-size", d => {console.log(d.size); return d.size; })
+                        .attr("font-size", d => d.size)
                         .attr("fill", d => g_tagToColor[d.text])
                         .attr("text-anchor", "middle")
                         .attr("font-family", "Arial")
@@ -119,4 +122,21 @@ function createWordCloud(update = false) {
                         .remove()
             );
     }
+}
+
+function handleClickWordCloud(_, d) {
+    if (!g_selectedTags.includes(d.text)){
+        g_selectedTags.push(d.text);
+        updateTagBox(d.text);
+        updatePlots();
+        removeShineFromTag();
+    }
+}
+
+function handleMouseOverWordCloud(_, d) {
+    addShineToTag(d.text);
+}
+
+function handleMouseOutWordCloud() {
+    removeShineFromTag();
 }

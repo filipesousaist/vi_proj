@@ -32,7 +32,7 @@ div {
     /*box-shadow: 0 0 4px rgba(0, 0, 0, 0.2), inset 0 1px 1px #fff;*/
     display: flex;
     align-items: center;
-    cursor: pointer;
+    /*cursor: pointer;*/
 }
 
 
@@ -62,6 +62,7 @@ div {
 
 .tag-container .tag .close:hover:after{
     color: red;
+    cursor: pointer;
 }
 
 ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
@@ -75,4 +76,9 @@ div {
 
 ::-ms-input-placeholder { /* Microsoft Edge */
     color: #aaa;
+}
+
+.word-shine {
+    cursor: pointer;
+    text-shadow:  0 5px yellow, 0 0 15px yellow, 0 0 30px yellow;
 }

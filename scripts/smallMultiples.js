@@ -118,12 +118,16 @@ function createBarChart(data, tag, chartNum, update) {
 
     svg
         .select("text.title")
+        .data([tag])
         .text(tag)
         .attr("text-anchor", "middle")
         .attr("font-family", "Arial")
         .attr("font-weight", "bolder")
         .style("fill", g_tagToColor[tag])
-        .attr("x", width / 2);
+        .attr("x", width / 2)
+        .on("click", handleClickSmallMultiplesTitle)
+        .on("mouseover", handleMouseOverSmallMultiplesTitle)
+        .on("mouseout", handleMouseOutSmallMultiplesTitle);
 
     svg
         .select("g.yAxis")
@@ -162,4 +166,21 @@ function createBarChart(data, tag, chartNum, update) {
                 .text(d => d["name"] + ": " + round(d["num"], 2)),
             exit => exit.remove()
         );	
+}
+
+function handleClickSmallMultiplesTitle(_, d) {
+    if (!g_selectedTags.includes(d)){
+        g_selectedTags.push(d);
+        updateTagBox(d);
+        updatePlots();
+        removeShineFromTag();
+    }
+}
+
+function handleMouseOverSmallMultiplesTitle(_, d) {
+    addShineToTag(d);
+}
+
+function handleMouseOutSmallMultiplesTitle() {
+    removeShineFromTag();
 }

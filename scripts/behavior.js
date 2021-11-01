@@ -29,6 +29,10 @@ let g_info;
 
 // Array with all tags
 let g_allTags;
+
+// Array with suggested tags
+let g_suggestedTags;
+
 // Array with all ids
 let g_allIds;
 
@@ -55,6 +59,7 @@ function init() {
         g_playerCountHistory = playerCountHistory;
         g_info = info;
         [g_allTags, g_allIds] = getAllTagsAndIds();
+        g_suggestedTags = g_allTags.slice();
         g_hasTag = createHasTagDict();
         g_idToName = createIdToNameDict();
         g_tagToColor = createTagToColorDict();
@@ -236,6 +241,8 @@ function reset() {
     clearTags();
     clearTagBox();
     updatePlots();
+    updateSuggestedTags(null, false, true);
+
 }
 
 function updatePlots(update = true) {

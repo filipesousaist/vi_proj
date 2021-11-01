@@ -1,5 +1,6 @@
 const tagContainer = document.querySelector('.tag-container');
 const input = document.querySelector('.tag-container input');
+input.placeholder = "Search tag here";
 
 let tags = [];
 

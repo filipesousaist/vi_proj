@@ -44,6 +44,7 @@ div {
     font-family: 'Rubik';
     color: #333;
     flex: 1;
+    
 }
 
 .tag-container .tag:hover{
@@ -60,10 +61,4 @@ div {
 
 .tag-container .tag .close:hover:after{
     color: red;
-}
-
-.tag-container .main-input {
-    border: 0;
-    outline: 0;
-    padding: 8px 1.6px;
 }

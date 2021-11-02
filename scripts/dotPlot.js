@@ -28,7 +28,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
     const x = d3
         .scalePoint()
         .domain(data.map(d => d["tag"]))
-        .range([0, 20 * data.length])
+        .range([0, width / 20 * data.length])
         .padding(1);
     
     const y = d3
@@ -244,17 +244,17 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
     }
 
     function dragmove(event) {
-        const dx = event.x - dragStartX;
-        let x = dx + oldTranslateX;
-        moved = x;
         if (data.length > 20) {   
+            const dx = event.x - dragStartX;
+            let x = dx + oldTranslateX;
 
             if (x > 0)
                 x = 0;
             
             if (x < (-width / 20 * data.length + width)) 
                 x = -width / 20 * data.length + width;
-
+                
+            moved = x;
 
             d3.select('.dots').attr("transform", "translate(" + x + "," + 0 + ")");
 

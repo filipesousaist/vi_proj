@@ -60,6 +60,7 @@ function init() {
         g_tagToColor = createTagToColorDict();
         
         updatePlots(false);
+        //addPanning();
     })
     .catch((error) => {
         console.log(error);
@@ -217,8 +218,11 @@ function getTopTagsByNumPlayers(numAndPeakPlayersPerTag, n) {
     const data_num = numAndPeakPlayersPerTag.filter(d => d["type"] == "num");
 
     data_num
-        .sort((pc1, pc2) => pc2["value"] - pc1["value"])
-        .splice(n);
+        .sort((pc1, pc2) => pc2["value"] - pc1["value"]);
+
+    if (n >= 0) {
+        data_num.splice(n);
+    }
 
     return data_num;
 }
@@ -248,3 +252,17 @@ function updatePlots(update = true) {
     createDotPlot(numAndPeakPlayersPerTag, update);
     createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update);
 }
+/*
+function addPanning() {
+    d3.select("#dot_plot")
+    .selectAll("svg")
+    .selectAll("circle")
+    .call(d3.zoom().on("zoom", zoomed));
+}
+
+function zoomed({ transform }) {
+    d3.select("#dot_plot")
+    .selectAll("svg")
+    .selectAll("circle")
+    .attr("transform", transform)
+}*/

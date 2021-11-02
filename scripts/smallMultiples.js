@@ -114,6 +114,20 @@ function createBarChart(data, tag, chartNum, update) {
         svg
             .append("g")
             .attr("class", "bars");   
+
+        var drag = d3.drag()
+            .on("drag", dragmove)
+            .on("start", dragstart);
+
+        svg
+            .append("rect")
+            .attr("width", width)
+            .attr("height", height)
+            .style("fill", "red")
+            .style("pointer-events", "all")
+            .attr("transform", "translate(" + 0 + "," + margin.top + ")")
+            .call(drag)
+ 
     }
 
     svg
@@ -162,4 +176,31 @@ function createBarChart(data, tag, chartNum, update) {
                 .text(d => d["name"] + ": " + round(d["num"], 2)),
             exit => exit.remove()
         );	
+
+
+
+    var moved = 0;
+    var dragStartY = 0;
+    var oldTranslateY = 0;
+
+    function dragstart(event) {
+        console.log(event)
+        dragStartY = event.sourceEvent.clientY - height;
+        oldTranslateY = moved;
+    }
+
+    function dragmove(event) {
+        var y = event.y;
+        var dy = y-dragStarty 
+        y = dy + oldTranslatey + 50;
+        if (y > 0)
+            y = 0;
+
+        console.log(x)
+        moved = x;
+
+        d3.select('.bars').attr("transform", "translate(" + y + "," + 0 + ")");
+
+        d3.select('.yAxis').attr("transform", "translate("+y +" ," + width + ")")
+    }
 }

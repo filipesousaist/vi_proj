@@ -2,7 +2,7 @@ const NUM_PLAYERS_COLOR = "#00ABFF";
 const PEAK_PLAYERS_COLOR = "#EE6666";
 
 function createDotPlot(numAndPeakPlayersPerTag, update) {
-    const topTagsByNumPlayers = getTopTagsByNumPlayers(numAndPeakPlayersPerTag, 10);
+    const topTagsByNumPlayers = getTopTagsByNumPlayers(numAndPeakPlayersPerTag, -1);
     
     const data = numAndPeakPlayersPerTag.filter(d => {
         for (let d_num of topTagsByNumPlayers)
@@ -23,10 +23,12 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
     const height = 400 - margin.top - margin.bottom;
     const titleHeight = 50;
 
+    console.log(data.length)
+
     const x = d3
         .scalePoint()
         .domain(data.map(d => d["tag"]))
-        .range([0, width])
+        .range([0, 20 * (data.length + 1)])
         .padding(1);
     
     const y = d3
@@ -55,20 +57,40 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .tickFormat(d => d < 1000 ? d : (d / 1000) + "K");
 
 
-    if (!update)
+    if (!update) {
         d3
             .select("div#dot_plot")
             .append("svg")
+            .attr("class", "y")
             .append("g");
+        d3
+            .select("div#dot_plot")
+            .append("svg")
+            .attr("class", "dots_and_x")
+            .append("g");
+
+    }
+
+
+
 
     const svg = d3
         .select("div#dot_plot")
         .attr("transform", "translate(0," + titleHeight + ")")
-        .select("svg")
-        .attr("width", width + margin.left + margin.right)
+        .select("svg.dots_and_x")
+        .attr("width", width + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .select("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + 0 + "," + margin.top + ")")
+
+    const svg2 = d3
+        .select("div#dot_plot")
+        .attr("transform", "translate(0," + titleHeight + ")")
+        .select("svg.y")
+        .attr("width", margin.left)
+        .attr("height", height + margin.top + margin.bottom)
+        .select("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
     if (!update) {
         d3
@@ -89,7 +111,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             .append("g")
             .attr("class", "xAxis");
 
-        svg
+        svg2
             .append("g")
             .attr("class", "yAxis");
         
@@ -129,6 +151,8 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             .text(typeToText("peak"));
     }
     
+
+
     svg
         .select("g.xAxis")
         .attr("transform", "translate(0," + height + ")")
@@ -142,11 +166,48 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .attr("dy", ".15em")
         .attr("transform", "rotate(-45)");
 
-    svg
+    svg2
         .select("g.yAxis")
-        .call(yAxis);
+        .call(yAxis)
+        .attr("transform", "translate(-1, 0)");
 
+    var drag = d3.drag()
+        .on("drag", dragmove)
+        .on("start", dragstart);
+
+    if (!update) {
+        var clip = svg.append("defs").append("SVG:clipPath")
+            .attr("id", "clip")
+            .append("svg:rect")
+            .attr("width", width )
+            .attr("height", height )
+            .attr("x", 0)
+            .attr("y", 0);
+        svg
+            .append("g")
+            .attr("class", "dots")
+            //.attr("clip-path", "url(#clip)")
+
+        svg
+            .append("rect")
+            .attr("class", "drag")
+            
+
+
+            
+        }
+    
     svg
+        .select(".drag")
+        .attr("width", width)
+        .attr("height", height)
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .call(drag)
+        
+    svg
+        .select(".dots")
         .selectAll("circle")
         .data(data)
         .join(
@@ -172,6 +233,40 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             exit =>
                 exit.remove()
         );
+
+    
+ 
+
+    var moved = 0;
+    var dragStartX = 0;
+    var oldTranslateX = 0;
+
+    function dragstart(event) {
+        dragStartX = event.sourceEvent.clientX - width;
+        oldTranslateX = moved;
+    }
+
+    function dragmove(event) {
+        if (data.length > 20) {
+            var x = event.x;
+            var dx = x-dragStartX 
+            x = dx + oldTranslateX + 136;
+            if (x > 0)
+                x = 0;
+            
+            if (x < (-20 * (data.length + 1) + 420)) { 
+                x = -20 * (data.length + 1) + 420
+            }
+
+            console.log(data.length)
+
+            moved = x;
+
+            d3.select('.dots').attr("transform", "translate(" + x + "," + 0 + ")");
+
+            d3.select('.xAxis').attr("transform", "translate("+x +" ," + height + ")")
+        }   
+    }
 }
 
 function typeToText(type) {

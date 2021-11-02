@@ -34,7 +34,16 @@ function autocomplete(inp) {
             /*execute a function when someone clicks on the item value (DIV element):*/
             b.addEventListener("click", function(e) {
                 /*insert the value for the autocomplete text field:*/
-                inp.value = this.getElementsByTagName("input")[0].value;
+
+                //inp.value = this.getElementsByTagName("input")[0].value;
+
+                g_selectedTags.push(tag);
+                tags.push(tag);
+                updateSuggestedTags(tag, false, false);
+                updatePlots();
+                input.value = '';
+                addTags();
+
                 /*close the list of autocompleted values,
                 (or any other open lists of autocompleted values:*/
                 closeAllLists();
@@ -69,6 +78,12 @@ function autocomplete(inp) {
           if (x) x[currentFocus].click();
         }
       }
+  });
+
+  inp.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') {
+      closeAllLists();
+    }
   });
   function addActive(x) {
     /*a function to classify an item as "active":*/

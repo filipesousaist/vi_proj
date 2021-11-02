@@ -240,15 +240,15 @@ function createBarChart(data, tag, chartNum, update) {
     function dragmove(event) {
         const dy = event.y - dragStartY;
         let y = dy + oldTranslateY;
-        moved = y;
-
+        
         if (data.length > 5) {
             if (y > 0)
-                y = 0;
-
+            y = 0;
+            
             if (y < (- height / 5 * data.length + height)) { 
                 y = - height / 5 * data.length + height;
             }
+            moved = y;
 
             d3.select('.bars' + chartNum).attr("transform", "translate(" + 0 + "," + y + ")");
 

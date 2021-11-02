@@ -28,7 +28,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
     const x = d3
         .scalePoint()
         .domain(data.map(d => d["tag"]))
-        .range([0, 20 * (data.length)])
+        .range([0, 20 * data.length])
         .padding(1);
     
     const y = d3
@@ -68,11 +68,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             .append("svg")
             .attr("class", "dots_and_x")
             .append("g");
-
     }
-
-
-
 
     const svg = d3
         .select("div#dot_plot")
@@ -168,6 +164,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .on("mouseover", handleMouseOverDotPlotTags)
         .on("mouseout", handleMouseOutDotPlotTags);
 
+
     svg2
         .select("g.yAxis")
         .call(yAxis)
@@ -180,14 +177,11 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
     if (!update) {
         svg
             .append("rect")
-            .attr("class", "drag")
-        
+            .attr("class", "drag");
         svg
             .append("g")
-            .attr("class", "dots")
-
-            
-        }
+            .attr("class", "dots");
+    }
     
     svg
         .select(".drag")
@@ -195,7 +189,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .attr("height", height)
         .style("fill", "none")
         .style("pointer-events", "all")
-        .call(drag)
+        .call(drag);
         
     svg
         .select(".dots")
@@ -227,37 +221,31 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
                 exit.remove()
         );
 
-    
- 
-
-    var moved = 0;
-    var dragStartX = 0;
-    var oldTranslateX = 0;
+    let moved = 0;
+    let dragStartX = 0;
+    let oldTranslateX = 0;
 
     function dragstart(event) {
-        dragStartX = event.sourceEvent.clientX - width;
+        dragStartX = event.x;
         oldTranslateX = moved;
     }
 
     function dragmove(event) {
-        if (data.length > 20) {
-            var x = event.x;
-            var dx = x-dragStartX 
-            x = dx + oldTranslateX + 286;
+        if (data.length > 20) {   
+            const dx = event.x - dragStartX;
+            let x = dx + oldTranslateX;
+
             if (x > 0)
                 x = 0;
             
-            if (x < (-20 * (data.length) + 420)) { 
-                x = -20 * (data.length) + 420
-            }
-
-            console.log(data.length)
+            if (x < (-width / 20 * data.length + width)) 
+                x = -width / 20 * data.length + width;
 
             moved = x;
 
             d3.select('.dots').attr("transform", "translate(" + x + "," + 0 + ")");
 
-            d3.select('.xAxis').attr("transform", "translate("+x +" ," + height + ")")
+            d3.select('.xAxis').attr("transform", "translate(" + x +" ," + height + ")")
         }   
     }
 }

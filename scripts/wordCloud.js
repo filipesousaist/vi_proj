@@ -1,5 +1,5 @@
 function createWordCloud(update = false) {
-    const width = 500;
+    const width = 600;
     const height = 350;
     const titleHeight = 50;
 

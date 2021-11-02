@@ -11,7 +11,20 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         return false;
     });
 
-    data.sort((pc1, pc2) => pc2["value"] - pc1["value"]);
+
+    data.sort(function(pc1, pc2) {
+        if(pc1.tag == pc2.tag || pc1.type != pc2.type){
+            if(pc1.type == "num"){
+                return -1;
+            }
+            else{
+                return 1;
+            }
+        }
+        return pc2["value"] - pc1["value"];
+    });
+
+    console.log(data)
     
     const margin = {
         top: 5,

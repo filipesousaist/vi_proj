@@ -224,7 +224,7 @@ function getTopTagsByNumPlayers(numAndPeakPlayersPerTag, n) {
 
     data_num
         .sort((pc1, pc2) => pc2["value"] - pc1["value"]);
-
+    
     if (n >= 0) {
         data_num.splice(n);
     }

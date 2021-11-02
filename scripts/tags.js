@@ -48,8 +48,9 @@ input.addEventListener('keyup', (e) => {
             return;
         let exists = false; 
         for (let otherTag of g_allTags)
-          if (tag == otherTag) {
+          if (tag.toUpperCase() == otherTag.toUpperCase()) {
             exists = true;
+            tag = otherTag;
             break;
           }
         if (exists) {

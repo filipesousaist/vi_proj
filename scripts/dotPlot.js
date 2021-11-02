@@ -146,7 +146,16 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             .text(typeToText("peak"));
     }
     
-
+    function wrap() {
+        var self = d3.select(this),
+            textLength = self.node().getComputedTextLength(),
+            text = self.text();
+        while (textLength > 90 && text.length > 0) {
+            text = text.slice(0, -1);
+            self.text(text + '...');
+            textLength = self.node().getComputedTextLength();
+        }
+    }
 
     svg
         .select("g.xAxis")
@@ -162,7 +171,9 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .attr("transform", "rotate(-45)")
         .on("click", handleClickDotPlotTags)
         .on("mouseover", handleMouseOverDotPlotTags)
-        .on("mouseout", handleMouseOutDotPlotTags);
+        .on("mouseout", handleMouseOutDotPlotTags)
+        .each(wrap);
+        
 
 
     svg2

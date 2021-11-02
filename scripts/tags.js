@@ -7,7 +7,6 @@ let tags = [];
 function createTag(label) {
   const div = document.createElement('div');
   div.setAttribute('class', 'tag');
-  //div.setAttribute('style', 'background-color: ' + g_tagToColor[label] + ';');
   
 	const span = document.createElement('span');
   span.innerHTML = label;
@@ -57,12 +56,15 @@ input.addEventListener('keyup', (e) => {
           updated = true;
           g_selectedTags.push(tag);
           tags.push(tag);
+          updateSuggestedTags(tag, false, false);
+
         }
       });
-      if (updated)
+      if (updated){
         updatePlots();
+        input.value = '';
+      }
       addTags();
-      input.value = '';
     }
 });
 document.addEventListener('click', (e) => {
@@ -76,6 +78,7 @@ document.addEventListener('click', (e) => {
 		}
     tags.splice(index, 1);
     addTags();
+    updateSuggestedTags(tagLabel, true, false);
 
   }
 })

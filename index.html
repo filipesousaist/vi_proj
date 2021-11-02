@@ -24,7 +24,7 @@
 	</head>
 
 	<body onload="init();">
-		<div>
+		<div style="width: 33%;">
 			<div id="word_cloud_title"></div>
 			<div id="word_cloud"></div>
 			<div class="tag-container">
@@ -32,14 +32,14 @@
 			</div>
 			<button onclick="reset()">Reset</button>
 		</div>
-		<div>
+		<div style="width: 33%;">
 			<div id="dot_plot_title"></div>
 			<div id="dot_plot"></div>
 			<div id="dot_plot_legend"></div>
 		</div>
-		<div id="barcharts">
+		<div style="width: 33%;" id="barcharts">
 			<div id="barcharts_title"></div>
-			<div id="small1"></div> 
+			<div id="small1" style="position: relative;"></div> 
 			<div id="small2"></div> 
 			<div id="small3"></div>
 			<div id="small4"></div> 
@@ -47,5 +47,6 @@
 		</div>
 		
 		<script language="JavaScript" type="text/javascript" src="scripts/tags.js"></script>
+		<script language="JavaScript" type="text/javascript" src="scripts/autocomplete.js"></script>
 	</body>
 </html>

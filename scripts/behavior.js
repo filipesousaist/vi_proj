@@ -29,6 +29,10 @@ let g_info;
 
 // Array with all tags
 let g_allTags;
+
+// Array with suggested tags
+let g_suggestedTags;
+
 // Array with all ids
 let g_allIds;
 
@@ -55,6 +59,7 @@ function init() {
         g_playerCountHistory = playerCountHistory;
         g_info = info;
         [g_allTags, g_allIds] = getAllTagsAndIds();
+        g_suggestedTags = g_allTags.slice();
         g_hasTag = createHasTagDict();
         g_idToName = createIdToNameDict();
         g_tagToColor = createTagToColorDict();
@@ -227,12 +232,42 @@ function getTopTagsByNumPlayers(numAndPeakPlayersPerTag, n) {
     return data_num;
 }
 
-function handleClick(_, d) {
-    if (!g_selectedTags.includes(d.text)){
-        g_selectedTags.push(d.text);
-        updateTagBox(d.text);
-        updatePlots();
-    }
+function addShineToTag(tag) {
+    d3
+        .select("div#word_cloud")
+        .select(".words")
+        .selectAll("text")
+        .classed("word-shine", d => d.text == tag);
+
+    d3
+        .select("div#dot_plot")
+        .select(".xAxis")
+        .selectAll("text")
+        .classed("word-shine", d => d == tag);
+
+    d3
+        .select("div#barcharts")
+        .selectAll(".title")
+        .classed("word-shine", d => d == tag);
+}
+
+function removeShineFromTag() {
+    d3
+        .select("div#word_cloud")
+        .select(".words")
+        .selectAll("text")
+        .classed("word-shine", false);
+
+    d3
+        .select("div#dot_plot")
+        .select(".xAxis")
+        .selectAll("text")
+        .classed("word-shine", false);
+
+    d3
+        .select("div#barcharts")
+        .selectAll(".title")
+        .classed("word-shine", false);
 }
 
 function reset() {
@@ -240,6 +275,8 @@ function reset() {
     clearTags();
     clearTagBox();
     updatePlots();
+    updateSuggestedTags(null, false, true);
+
 }
 
 function updatePlots(update = true) {
@@ -252,17 +289,3 @@ function updatePlots(update = true) {
     createDotPlot(numAndPeakPlayersPerTag, update);
     createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update);
 }
-/*
-function addPanning() {
-    d3.select("#dot_plot")
-    .selectAll("svg")
-    .selectAll("circle")
-    .call(d3.zoom().on("zoom", zoomed));
-}
-
-function zoomed({ transform }) {
-    d3.select("#dot_plot")
-    .selectAll("svg")
-    .selectAll("circle")
-    .attr("transform", transform)
-}*/

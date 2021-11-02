@@ -7,7 +7,7 @@ const titleHeight = 50;
 
 function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
     // Get top 5 tags by num players
-    const topTagsByNumPlayers = getTopTagsByNumPlayers(numAndPeakPlayersPerTag, 5);
+    const topTagsByNumPlayers = getTopTagsByNumPlayers(numAndPeakPlayersPerTag, -1);
 
     const topTags = topTagsByNumPlayers.map(element => element["tag"]);
 
@@ -59,7 +59,10 @@ function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
 }
 
 function createBarChart(data, tag, chartNum, update) {
-    data.splice(Math.min(5, data.length));
+    //data.splice(Math.max(5, data.length));
+
+    if (chartNum == 1)
+        console.log(data.length)
 
     for (let row of data)
         row["name"] = g_idToName[row["id"]];
@@ -72,7 +75,7 @@ function createBarChart(data, tag, chartNum, update) {
     const y = d3
         .scaleBand()
         .domain(data.map(d => d["name"]))
-        .range([0, height])
+        .range([0, 20 * (Math.max(data.length, 5))])
         .padding(0.4);
 		
     const yAxis = d3
@@ -87,57 +90,101 @@ function createBarChart(data, tag, chartNum, update) {
         .ticks(5)
         .tickFormat(d => d < 1000 ? d : (d / 1000) + "K");
 
-    if (!update)
+    if (!update) {
         d3
             .select("div#small" + chartNum)
             .append("svg")
+            .attr("class", "title" + chartNum)
             .append("g");
-		
+        d3
+            .select("div#small" + chartNum)
+            .append("svg")
+            .attr("class", "bars_and_y" + chartNum)
+            .append("g");
+
+        d3
+            .select("div#small" + chartNum)
+            .append("svg")
+            .attr("class", "x" + chartNum)
+            .append("g");
+
+    }	
+    
 	const svg = d3
         .select("div#small" + chartNum)
-        .select("svg")
+        .select("svg.bars_and_y" + chartNum)
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("height", height)
         .select("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + margin.left + "," + 0 + ")");
     
+    const svg2 = d3
+        .select("div#small" + chartNum)
+        .select("svg.x" + chartNum)
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", margin.bottom + 1)
+        .select("g")
+        .attr("transform", "translate(" + margin.left + "," + 0 + ")");
+
+    const svg3 = d3
+        .select("div#small" + chartNum)
+        .select("svg.title" + chartNum)
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", margin.top)
+        .select("g")
+        .attr("transform", "translate(" + margin.left + "," + (margin.top - 5 )+ ")");
+    
+
     if (!update) {
         svg
-            .append("text")
-            .attr("class", "title");
+        .append("rect")
+        .attr("class", "drag_small_multiples")
+        svg3
+        .append("text")
+        .attr("class", "title");
+        svg2
+        .append("g")
+        .attr("class", "xAxis");
         svg
-            .append("g")
-            .attr("class", "xAxis");
+        .append("g")
+        .attr("class", "yAxis");
         svg
-            .append("g")
-            .attr("class", "yAxis");
-        svg
-            .append("g")
-            .attr("class", "bars");   
-
-        var drag = d3.drag()
-            .on("drag", dragmove)
-            .on("start", dragstart);
-
-        svg
-            .append("rect")
-            .attr("width", width)
-            .attr("height", height)
-            .style("fill", "red")
-            .style("pointer-events", "all")
-            .attr("transform", "translate(" + 0 + "," + margin.top + ")")
-            .call(drag)
- 
+        .append("g")
+        .attr("class", "bars" + chartNum);   
+        
+        
+        
+        
     }
+    var drag = d3.drag()
+        .on("drag", dragmove)
+        .on("start", dragstart);
 
     svg
+        .select(".drag_small_multiples")
+        .attr("width", width)
+        .attr("height", height + margin.top)
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .call(drag)
+
+    svg
+        .select(".bars" + chartNum)
+        .style("pointer-events", "all")
+        .call(drag)
+
+    svg3
         .select("text.title")
+        .data([tag])
         .text(tag)
         .attr("text-anchor", "middle")
         .attr("font-family", "Arial")
         .attr("font-weight", "bolder")
         .style("fill", g_tagToColor[tag])
-        .attr("x", width / 2);
+        .attr("x", width / 2)
+        .on("click", handleClickSmallMultiplesTitle)
+        .on("mouseover", handleMouseOverSmallMultiplesTitle)
+        .on("mouseout", handleMouseOutSmallMultiplesTitle);
 
     svg
         .select("g.yAxis")
@@ -147,13 +194,13 @@ function createBarChart(data, tag, chartNum, update) {
         .attr("font-family", "Arial")
         .attr("font-weight", "bolder");
 	
-    svg
+    svg2
         .select("g.xAxis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
+        .call(xAxis)
+        .attr("transform", "translate(0, -1)")
 	
 	svg
-		.select("g.bars")
+		.select("g.bars" + chartNum)
 		.selectAll("rect")
 		.data(data, d => d["num"])
         .join(
@@ -190,17 +237,41 @@ function createBarChart(data, tag, chartNum, update) {
     }
 
     function dragmove(event) {
-        var y = event.y;
-        var dy = y-dragStarty 
-        y = dy + oldTranslatey + 50;
-        if (y > 0)
-            y = 0;
+        if (data.length > 5) {
+            var y = event.y;
+            var dy = y-dragStartY 
+            y = dy + oldTranslateY - 17 + 144 * (chartNum - 1);
+            if (y > 0)
+                y = 0;
 
-        console.log(x)
-        moved = x;
+            if (y < (-20 * (data.length) + 100)) { 
+                y = -20 * (data.length) + 100
+            }
+            
+            console.log(chartNum)
+            moved = y;
 
-        d3.select('.bars').attr("transform", "translate(" + y + "," + 0 + ")");
+            d3.select('.bars' + chartNum).attr("transform", "translate(" + 0 + "," + y + ")");
 
-        d3.select('.yAxis').attr("transform", "translate("+y +" ," + width + ")")
+            svg.select('.yAxis').attr("transform", "translate("+ 0 +" ," + y + ")")
+        }
     }
+}
+
+function handleClickSmallMultiplesTitle(_, d) {
+    if (!g_selectedTags.includes(d)){
+        g_selectedTags.push(d);
+        updateTagBox(d);
+        updatePlots();
+        removeShineFromTag();
+        updateSuggestedTags(d, false, false);
+    }
+}
+
+function handleMouseOverSmallMultiplesTitle(_, d) {
+    addShineToTag(d);
+}
+
+function handleMouseOutSmallMultiplesTitle() {
+    removeShineFromTag();
 }

@@ -17,7 +17,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         top: 5,
         right: 20,
         bottom: 80,
-        left: 30
+        left: 40
     };
     const width = 450 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
@@ -28,7 +28,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
     const x = d3
         .scalePoint()
         .domain(data.map(d => d["tag"]))
-        .range([0, 20 * (data.length + 1)])
+        .range([0, 20 * (data.length)])
         .padding(1);
     
     const y = d3
@@ -85,7 +85,6 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
 
     const svg2 = d3
         .select("div#dot_plot")
-        .attr("transform", "translate(0," + titleHeight + ")")
         .select("svg.y")
         .attr("width", margin.left)
         .attr("height", height + margin.top + margin.bottom)
@@ -164,7 +163,10 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .attr("fill", t => g_tagToColor[t])
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
-        .attr("transform", "rotate(-45)");
+        .attr("transform", "rotate(-45)")
+        .on("click", handleClickDotPlotTags)
+        .on("mouseover", handleMouseOverDotPlotTags)
+        .on("mouseout", handleMouseOutDotPlotTags);
 
     svg2
         .select("g.yAxis")
@@ -176,38 +178,29 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .on("start", dragstart);
 
     if (!update) {
-        var clip = svg.append("defs").append("SVG:clipPath")
-            .attr("id", "clip")
-            .append("svg:rect")
-            .attr("width", width )
-            .attr("height", height )
-            .attr("x", 0)
-            .attr("y", 0);
-        svg
-            .append("g")
-            .attr("class", "dots")
-            //.attr("clip-path", "url(#clip)")
-
         svg
             .append("rect")
             .attr("class", "drag")
-            
-
+        
+        svg
+            .append("g")
+            .attr("class", "dots")
 
             
         }
     
     svg
         .select(".drag")
-        .attr("width", width)
+        .attr("width", width + margin.right)
         .attr("height", height)
         .style("fill", "none")
         .style("pointer-events", "all")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         .call(drag)
         
     svg
         .select(".dots")
+        .style("pointer-events", "all")
+        .call(drag)
         .selectAll("circle")
         .data(data)
         .join(
@@ -250,12 +243,12 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         if (data.length > 20) {
             var x = event.x;
             var dx = x-dragStartX 
-            x = dx + oldTranslateX + 136;
+            x = dx + oldTranslateX + 286;
             if (x > 0)
                 x = 0;
             
-            if (x < (-20 * (data.length + 1) + 420)) { 
-                x = -20 * (data.length + 1) + 420
+            if (x < (-20 * (data.length) + 420)) { 
+                x = -20 * (data.length) + 420
             }
 
             console.log(data.length)
@@ -271,4 +264,22 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
 
 function typeToText(type) {
     return (type == "num") ? "No. players (avg.)" : "Peak players (avg.)"
+}
+
+function handleClickDotPlotTags(_, d) {
+    if (!g_selectedTags.includes(d)){
+        g_selectedTags.push(d);
+        updateTagBox(d);
+        updatePlots();
+        removeShineFromTag();
+        updateSuggestedTags(d, false, false);
+    }
+}
+
+function handleMouseOverDotPlotTags(_, d) {
+    addShineToTag(d);
+}
+
+function handleMouseOutDotPlotTags() {
+    removeShineFromTag();
 }

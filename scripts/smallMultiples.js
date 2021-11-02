@@ -231,30 +231,35 @@ function createBarChart(data, tag, chartNum, update) {
     var dragStartY = 0;
     var oldTranslateY = 0;
 
+    resetDrag()
     function dragstart(event) {
         dragStartY = event.y;
         oldTranslateY = moved;
     }
 
     function dragmove(event) {
-        console.log("event.y", event.y);
+        const dy = event.y - dragStartY;
+        let y = dy + oldTranslateY;
+        moved = y;
+
         if (data.length > 5) {
-            const dy = event.y - dragStartY;
-            let y = dy + oldTranslateY;
             if (y > 0)
                 y = 0;
 
             if (y < (- height / 5 * data.length + height)) { 
                 y = - height / 5 * data.length + height;
             }
-            
-            console.log(chartNum)
-            moved = y;
 
             d3.select('.bars' + chartNum).attr("transform", "translate(" + 0 + "," + y + ")");
 
             svg.select('.yAxis').attr("transform", "translate("+ 0 +" ," + y + ")")
         }
+    }
+
+    function resetDrag() {
+        d3.select('.bars' + chartNum).attr("transform", "translate(" + 0 + "," + moved + ")");
+        svg.select('.yAxis').attr("transform", "translate("+ 0 +" ," + moved + ")")
+
     }
 }
 

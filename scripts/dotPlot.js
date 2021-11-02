@@ -232,19 +232,22 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
                 exit.remove()
         );
 
-    let moved = 0;
-    let dragStartX = 0;
-    let oldTranslateX = 0;
-
+        
+        let moved = 0;
+        let dragStartX = 0;
+        let oldTranslateX = 0;
+        resetDrag()
+        
     function dragstart(event) {
         dragStartX = event.x;
         oldTranslateX = moved;
     }
 
     function dragmove(event) {
+        const dx = event.x - dragStartX;
+        let x = dx + oldTranslateX;
+        moved = x;
         if (data.length > 20) {   
-            const dx = event.x - dragStartX;
-            let x = dx + oldTranslateX;
 
             if (x > 0)
                 x = 0;
@@ -252,12 +255,15 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             if (x < (-width / 20 * data.length + width)) 
                 x = -width / 20 * data.length + width;
 
-            moved = x;
 
             d3.select('.dots').attr("transform", "translate(" + x + "," + 0 + ")");
 
             d3.select('.xAxis').attr("transform", "translate(" + x +" ," + height + ")")
         }   
+    }
+
+    function resetDrag() {
+        d3.select('.dots').attr("transform", "translate(" + moved + "," + 0 + ")");
     }
 }
 

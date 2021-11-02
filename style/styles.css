@@ -145,6 +145,7 @@ div {
     border: 1px solid #d4d4d4; 
     font-family: Arial;
     font-size: 14px;
+    float: none;
 }
   
 /*when hovering an item:*/

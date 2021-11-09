@@ -241,7 +241,7 @@ function addShineToTag(tag) {
 
     d3
         .select("div#dot_plot")
-        .select(".xAxis")
+        .select(".yAxis")
         .selectAll("text")
         .classed("word-shine", d => d == tag);
 
@@ -260,7 +260,7 @@ function removeShineFromTag() {
 
     d3
         .select("div#dot_plot")
-        .select(".xAxis")
+        .select(".yAxis")
         .selectAll("text")
         .classed("word-shine", false);
 

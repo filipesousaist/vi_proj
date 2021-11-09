@@ -260,7 +260,7 @@ function createBarChart(data, tag, chartNum, update) {
         
         if (data.length > 5) {
             if (y > 0)
-            y = 0;
+                y = 0;
             
             if (y < (- height / 5 * data.length + height)) { 
                 y = - height / 5 * data.length + height;

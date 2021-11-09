@@ -30,27 +30,27 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         top: 5,
         right: 20,
         bottom: 80,
-        left: 40
+        left: 150
     };
-    const width = 450 - margin.left - margin.right;
+    const width = 600 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
     const titleHeight = 50;
 
     console.log(data.length)
 
-    const x = d3
+    const y = d3
         .scalePoint()
         .domain(data.map(d => d["tag"]))
-        .range([0, width / 20 * data.length])
+        .range([0, height / 20 * (Math.max(data.length, 20))])
         .padding(1);
     
-    const y = d3
+    const x = d3
         .scaleLinear()
         .domain([
             0, 
             1.1 * d3.max(d3.map(data, d => d["value"]))
         ])
-        .range([height, 0]);
+        .range([0, width]);
 
     const color = d3
         .scaleOrdinal(
@@ -61,43 +61,43 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
     const xAxis = d3
         .axisBottom()
         .scale(x)
-        .tickSizeOuter(0);
+        .tickSizeOuter(0)
+        .tickFormat(d => d < 1000 ? d : (d / 1000) + "K");;
 
     const yAxis = d3
         .axisLeft()
         .scale(y)
         .tickSizeOuter(0)
-        .tickFormat(d => d < 1000 ? d : (d / 1000) + "K");
+        
 
     if (!update) {
         d3
             .select("div#dot_plot")
             .append("svg")
-            .attr("class", "y")
+            .attr("class", "dots_and_y")
             .append("g");
         d3
             .select("div#dot_plot")
             .append("svg")
-            .attr("class", "dots_and_x")
+            .attr("class", "x")
             .append("g");
     }
 
     const svg = d3
         .select("div#dot_plot")
-        .attr("transform", "translate(0," + titleHeight + ")")
-        .select("svg.dots_and_x")
-        .attr("width", width + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .select("svg.dots_and_y")
+        .attr("width", width + margin.right + margin.left)
+        .attr("height", height + margin.top)
         .select("g")
-        .attr("transform", "translate(" + 0 + "," + margin.top + ")")
-
-    const svgY = d3
+        .attr("transform", "translate(" + margin.left + ", 0)")
+ 
+    const svgX = d3
         .select("div#dot_plot")
-        .select("svg.y")
-        .attr("width", margin.left)
-        .attr("height", height + margin.top + margin.bottom)
+        .select("svg.x")
+        .attr("width", width + margin.right + margin.left)
+        .attr("height", margin.bottom)
         .select("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .attr("transform", "translate(" + margin.left + "," + (margin.top) + ")")
 
     if (!update) {
         d3
@@ -116,11 +116,11 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         
         svg
             .append("g")
-            .attr("class", "xAxis");
-
-        svgY
-            .append("g")
             .attr("class", "yAxis");
+
+        svgX
+            .append("g")
+            .attr("class", "xAxis");
         
         legend = d3.select("#dot_plot_legend")
             .append("svg")
@@ -170,9 +170,8 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
     }
 
     svg
-        .select("g.xAxis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis)
+        .select("g.yAxis")
+        .call(yAxis)
         .selectAll("text")  
         .style("text-anchor", "end")
         .attr("font-family", "Arial")
@@ -181,7 +180,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .attr("fill", t => g_tagToColor[t])
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
-        .attr("transform", "rotate(-45)")
+        //.attr("transform", "rotate(-45)")
         .on("click", handleClickDotPlotTags)
         .on("mouseover", handleMouseOverDotPlotTags)
         .on("mouseout", handleMouseOutDotPlotTags)
@@ -189,10 +188,9 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         
 
 
-    svgY
-        .select("g.yAxis")
-        .call(yAxis)
-        .attr("transform", "translate(-1, 0)")
+    svgX
+        .select("g.xAxis")
+        .call(xAxis)
         .attr("font-family", "Arial")
         .attr("font-weight", "bolder")
         .attr("font-size", 12);
@@ -230,8 +228,8 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
                     .append("circle")
                     .attr("class", "dot")
                     .attr("r", 3.5)
-                    .attr("cx", d => x(d["tag"]))
-                    .attr("cy", d => y(d["value"]))
+                    .attr("cx", d => x(d["value"]))
+                    .attr("cy", d => y(d["tag"]))
                     .style("fill", d => color(d["type"]))
                     .append("title")
                     .text(d => d["tag"] + "\n" + typeToText(d["type"]) + ": " + round(d["value"], 2)),
@@ -239,8 +237,8 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
                 update
                     .attr("class", "dot")
                     .attr("r", 3.5)
-                    .attr("cx", d => x(d["tag"]))
-                    .attr("cy", d => y(d["value"]))
+                    .attr("cx", d => x(d["value"]))
+                    .attr("cy", d => y(d["tag"]))
                     .style("fill", d => color(d["type"]))
                     .select("title")
                     .text(d => d["tag"] + "\n" + typeToText(d["type"]) + ": " + round(d["value"], 2)),
@@ -250,36 +248,37 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
 
         
         let moved = 0;
-        let dragStartX = 0;
-        let oldTranslateX = 0;
+        let dragStartY = 0;
+        let oldTranslateY = 0;
         resetDrag()
         
     function dragstart(event) {
-        dragStartX = event.x;
-        oldTranslateX = moved;
+        dragStartY = event.y;
+        oldTranslateY = moved;
     }
 
     function dragmove(event) {
         if (data.length > 20) {   
-            const dx = event.x - dragStartX;
-            let x = dx + oldTranslateX;
+            const dy = event.y - dragStartY;
+            let y = dy + oldTranslateY;
 
-            if (x > 0)
-                x = 0;
+            if (y > 0)
+                y = 0;
             
-            if (x < (-width / 20 * data.length + width)) 
-                x = -width / 20 * data.length + width;
+            if (y < (-height / 20 * data.length + height)) 
+                y = -height / 20 * data.length + height;
                 
-            moved = x;
+            moved = y;
 
-            d3.select('.dots').attr("transform", "translate(" + x + "," + 0 + ")");
+            d3.select('.dots').attr("transform", "translate(" + 0 + "," + y + ")");
 
-            d3.select('.xAxis').attr("transform", "translate(" + x +" ," + height + ")")
+            d3.select('.yAxis').attr("transform", "translate(" + 0 +" ," + y + ")")
         }   
     }
 
     function resetDrag() {
-        d3.select('.dots').attr("transform", "translate(" + moved + "," + 0 + ")");
+        d3.select('.dots').attr("transform", "translate(" + 0 + "," + moved + ")");
+        svg.select('.yAxis').attr("transform", "translate("+ 0 +" ," + moved + ")")
     }
 }
 

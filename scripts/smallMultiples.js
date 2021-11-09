@@ -1,9 +1,22 @@
 
-const margin = { top: 25, right: 10, bottom: 20, left: 320 };
+let smMargin;
+let smWidth;
+let smHeight;
+let smTitleHeight;
 
-const width = 720 - margin.left - margin.right;
-const height = 180 - margin.top - margin.bottom;
-const titleHeight = 50;
+function initSmallMultiples() {
+    const smDivRect = d3
+        .select("#barcharts")
+        .select(".idiom_background")
+        .node()
+        .getBoundingClientRect();
+
+    smMargin = { top: 25, right: 20, bottom: 20, left: 180 };
+
+    smWidth = smDivRect.width - 2 - smMargin.left - smMargin.right;
+    smHeight = 180 - smMargin.top - smMargin.bottom;
+    smTitleHeight = 60;
+}
 
 function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
     // Get top 5 tags by num players
@@ -39,18 +52,18 @@ function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
         if (i < topTags.length)
             createBarChart(tagsGames[topTags[i]], topTags[i], i + 1, update);
         else
-            createBarChart([], "", i + 1, update)
+            createBarChart([], "", i + 1, update);
     }
 
     if (!update)
         d3
             .select("div#barcharts_title")
             .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", titleHeight)
+            .attr("width", smWidth + smMargin.left + smMargin.right)
+            .attr("height", smTitleHeight)
             .append("text")
             .text("Most Popular Games")
-            .attr("transform", "translate(" + (width + margin.left + margin.right) / 2 + "," + titleHeight / 2 + ")")
+            .attr("transform", "translate(" + (smWidth + smMargin.left + smMargin.right) / 2 + "," + smTitleHeight / 2 + ")")
             .attr("text-anchor", "middle")
             .attr("text-decoration", "underline")
             .attr("font-size", "25")
@@ -65,12 +78,12 @@ function createBarChart(data, tag, chartNum, update) {
 
     const x = d3.scaleLinear()
         .domain([0, 1.1 * d3.max(d3.map(data, d => d["num"]))])
-        .range([0, width]);
+        .range([0, smWidth]);
 	
     const y = d3
         .scaleBand()
         .domain(data.map(d => d["name"]))
-        .range([0, height / 5 * (Math.max(data.length, 5))])
+        .range([0, smHeight / 5 * (Math.max(data.length, 5))])
         .paddingInner(0.5)
         .paddingOuter(0.25);
 		
@@ -89,7 +102,7 @@ function createBarChart(data, tag, chartNum, update) {
     d3
         .select("div#small" + chartNum)
         .style("position", "absolute")
-        .style("transform", "translate(0," + (titleHeight + (margin.top + height + margin.bottom) * (chartNum - 1)) + "px)");
+        .style("transform", "translate(0," + (smTitleHeight + (smMargin.top + smHeight + smMargin.bottom) * (chartNum - 1)) + "px)");
 
     if (!update) {
         d3
@@ -108,34 +121,35 @@ function createBarChart(data, tag, chartNum, update) {
             .attr("class", "x" + chartNum)
             .append("g");
     }
+
     const svgTitle = d3
         .select("div#small" + chartNum)
         .select("svg.title" + chartNum)
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", margin.top)
+        .attr("width", smWidth + smMargin.left + smMargin.right)
+        .attr("height", smMargin.top)
         .style("position", "absolute")
         .select("g")
-        .attr("transform", "translate(" + margin.left + ", 0)");
+        .attr("transform", "translate(" + smMargin.left + ", 0)");
     
 	const svg = d3
         .select("div#small" + chartNum)
         .select("svg.bars_and_y" + chartNum)
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height)
+        .attr("width", smWidth + smMargin.left + smMargin.right)
+        .attr("height", smHeight)
         .style("position", "absolute")
-        .style("transform", "translate(0, " + margin.top + "px)")
+        .style("transform", "translate(0, " + smMargin.top + "px)")
         .select("g")
-        .attr("transform", "translate(" + margin.left + ", 0)");
+        .attr("transform", "translate(" + smMargin.left + ", 0)");
     
     const svgX = d3
         .select("div#small" + chartNum)
         .select("svg.x" + chartNum)
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", margin.bottom)
+        .attr("width", smWidth + smMargin.left + smMargin.right)
+        .attr("height", smMargin.bottom)
         .style("position", "absolute")
-        .style("transform", "translate(0, " + (margin.top + height) + "px)")
+        .style("transform", "translate(0, " + (smMargin.top + smHeight) + "px)")
         .select("g")
-        .attr("transform", "translate(" + margin.left + ", 0)");
+        .attr("transform", "translate(" + smMargin.left + ", 0.25)");
     
 
     if (!update) {
@@ -162,8 +176,8 @@ function createBarChart(data, tag, chartNum, update) {
 
     svg
         .select(".drag_small_multiples")
-        .attr("width", width)
-        .attr("height", height)
+        .attr("width", smWidth)
+        .attr("height", smHeight)
         .style("fill", "none")
         .style("pointer-events", "all")
         .call(drag);
@@ -183,7 +197,7 @@ function createBarChart(data, tag, chartNum, update) {
         .attr("font-weight", "bolder")
         .attr("font-size", 16)
         .style("fill", g_tagToColor[tag])
-        .attr("x", width / 2)   
+        .attr("x", smWidth / 2)   
         .on("click", handleClickSmallMultiplesTitle)
         .on("mouseover", handleMouseOverSmallMultiplesTitle)
         .on("mouseout", handleMouseOutSmallMultiplesTitle);
@@ -207,7 +221,9 @@ function createBarChart(data, tag, chartNum, update) {
         .attr("font-family", "Arial")
         .attr("font-weight", "bolder")
         .attr("font-size", 12)
-        .each(wrap);
+        .each(wrap)
+        .append("title")
+        .text(d => d);
 	
     svgX
         .select("g.xAxis")
@@ -262,20 +278,20 @@ function createBarChart(data, tag, chartNum, update) {
             if (y > 0)
                 y = 0;
             
-            if (y < (- height / 5 * data.length + height)) { 
-                y = - height / 5 * data.length + height;
+            if (y < (- smHeight / 5 * data.length + smHeight)) { 
+                y = - smHeight / 5 * data.length + smHeight;
             }
             moved = y;
 
-            d3.select('.bars' + chartNum).attr("transform", "translate(" + 0 + "," + y + ")");
+            d3.select('.bars' + chartNum).attr("transform", "translate(0, " + y + ")");
 
-            svg.select('.yAxis').attr("transform", "translate("+ 0 +" ," + y + ")")
+            svg.select('.yAxis').attr("transform", "translate(0, " + y + ")")
         }
     }
 
     function resetDrag() {
-        d3.select('.bars' + chartNum).attr("transform", "translate(" + 0 + "," + moved + ")");
-        svg.select('.yAxis').attr("transform", "translate("+ 0 +" ," + moved + ")")
+        d3.select('.bars' + chartNum).attr("transform", "translate(0, " + moved + ")");
+        svg.select('.yAxis').attr("transform", "translate(0, " + moved + ")")
 
     }
 }

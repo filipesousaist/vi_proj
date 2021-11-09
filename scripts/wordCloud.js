@@ -1,8 +1,20 @@
-function createWordCloud(update = false) {
-    const width = 600;
-    const height = 350;
-    const titleHeight = 50;
+let wcWidth;
+let wcHeight;
+let wcTitleHeight;
 
+function initWordCloud() {
+    const wcDivRect = d3
+        .select("#word_cloud_container")
+        .select(".idiom_background")
+        .node()
+        .getBoundingClientRect();
+    
+    wcWidth = wcDivRect.width - 2; // 2 == padding
+    wcHeight = 350;
+    wcTitleHeight = 60;
+}
+
+function createWordCloud(update = false) {
     const tagsToUse = getTagsToUse();
     const counts = {};
 
@@ -33,7 +45,7 @@ function createWordCloud(update = false) {
 
     const layout = d3.layout
         .cloud()
-        .size([width, height])
+        .size([wcWidth, wcHeight])
         .words(sorted_counts.map(
             d => ({text: d[0], size: d[1]})
         ))
@@ -55,18 +67,18 @@ function createWordCloud(update = false) {
         const svg = d3
             .select("div#word_cloud")
             .select("svg")
-            .attr("width", width)
-            .attr("height", height);
+            .attr("width", wcWidth)
+            .attr("height", wcHeight);
 
         if (!update)
             d3
                 .select("div#word_cloud_title")
                 .append("svg")
-                .attr("width", width)
-                .attr("height", titleHeight)
+                .attr("width", wcWidth)
+                .attr("height", wcTitleHeight)
                 .append("text")
                 .text("Most Frequent Tags")
-                .attr("transform", "translate(" + width / 2 + "," + titleHeight / 2 + ")")
+                .attr("transform", "translate(" + wcWidth / 2 + "," + wcTitleHeight / 2 + ")")
                 .attr("text-anchor", "middle")
                 .attr("text-decoration", "underline")
                 .attr("font-size", "25")

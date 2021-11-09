@@ -55,6 +55,8 @@ function init() {
         d3.csv("data/information.csv")
     ])
     .then(([tags, playerCountHistory, info]) => {
+        initIdioms();
+
         g_tags = tags;
         g_playerCountHistory = playerCountHistory;
         g_info = info;
@@ -70,6 +72,12 @@ function init() {
     .catch((error) => {
         console.log(error);
     });
+}
+
+function initIdioms() {
+    initWordCloud();
+    initDotPlot();
+    initSmallMultiples();
 }
 
 function getAllTagsAndIds() {

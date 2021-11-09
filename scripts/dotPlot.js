@@ -1,6 +1,32 @@
 const NUM_PLAYERS_COLOR = "#00ABFF";
 const PEAK_PLAYERS_COLOR = "#EE6666";
 
+let dpDivRect;
+let dpMargin;
+let dpWidth;
+let dpHeight;
+let dpTitleHeight;
+
+function initDotPlot() {
+    dpDivRect = d3
+        .select("#dot_plot_container")
+        .select(".idiom_background")
+        .node()
+        .getBoundingClientRect();
+
+    dpMargin = {
+        top: 5,
+        right: 20,
+        bottom: 20,
+        left: 130
+    };
+
+    dpWidth = dpDivRect.width - 2 - dpMargin.left - dpMargin.right; // 2 == padding
+    dpXHeight = 40;
+    dpHeight = 410 - dpMargin.top - dpXHeight - dpMargin.bottom;
+    dpTitleHeight = 60;
+}
+
 function createDotPlot(numAndPeakPlayersPerTag, update) {
     const topTagsByNumPlayers = getTopTagsByNumPlayers(numAndPeakPlayersPerTag, -1);
     
@@ -24,24 +50,14 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         return pc2["value"] - pc1["value"];
     });
 
-    console.log(data)
     
-    const margin = {
-        top: 5,
-        right: 20,
-        bottom: 80,
-        left: 150
-    };
-    const width = 600 - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
-    const titleHeight = 50;
 
     console.log(data.length)
 
     const y = d3
         .scalePoint()
         .domain(data.map(d => d["tag"]))
-        .range([0, height / 20 * (Math.max(data.length, 20))])
+        .range([0, dpHeight / 20 * (Math.max(data.length, 20))])
         .padding(1);
     
     const x = d3
@@ -50,7 +66,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             0, 
             1.1 * d3.max(d3.map(data, d => d["value"]))
         ])
-        .range([0, width]);
+        .range([0, dpWidth]);
 
     const color = d3
         .scaleOrdinal(
@@ -75,39 +91,41 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             .select("div#dot_plot")
             .append("svg")
             .attr("class", "dots_and_y")
+            .style("display", "block")
             .append("g");
         d3
             .select("div#dot_plot")
             .append("svg")
             .attr("class", "x")
+            .style("display", "block")
             .append("g");
     }
 
     const svg = d3
         .select("div#dot_plot")
         .select("svg.dots_and_y")
-        .attr("width", width + margin.right + margin.left)
-        .attr("height", height + margin.top)
+        .attr("width", dpWidth + dpMargin.right + dpMargin.left)
+        .attr("height", dpHeight + dpMargin.top)
         .select("g")
-        .attr("transform", "translate(" + margin.left + ", 0)")
+        .attr("transform", "translate(" + dpMargin.left + ", 0)");
  
     const svgX = d3
         .select("div#dot_plot")
         .select("svg.x")
-        .attr("width", width + margin.right + margin.left)
-        .attr("height", margin.bottom)
+        .attr("width", dpWidth + dpMargin.right + dpMargin.left)
+        .attr("height", dpXHeight)
         .select("g")
-        .attr("transform", "translate(" + margin.left + "," + (margin.top) + ")")
+        .attr("transform", "translate(" + dpMargin.left + ", 0.25)");
 
     if (!update) {
         d3
             .select("div#dot_plot_title")
             .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", titleHeight)
+            .attr("width", dpWidth + dpMargin.left + dpMargin.right)
+            .attr("height", dpTitleHeight)
             .append("text")
             .text("Most Popular Tags")
-            .attr("transform", "translate(" + (width + margin.left + margin.right) / 2 + "," + titleHeight / 2 + ")")
+            .attr("transform", "translate(" + (dpWidth + dpMargin.left + dpMargin.right) / 2 + "," + dpTitleHeight / 2 + ")")
             .attr("text-anchor", "middle")
             .attr("text-decoration", "underline")
             .attr("font-size", "25")
@@ -122,39 +140,44 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             .append("g")
             .attr("class", "xAxis");
         
+        const blueCircleX = dpMargin.left + 0.1 * dpWidth;
+        const redCircleX = dpMargin.left + 0.55 * dpWidth;
+
         legend = d3.select("#dot_plot_legend")
             .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", 30);
-
+            .attr("width", dpWidth + dpMargin.left + dpMargin.right)
+            .attr("height", dpMargin.bottom);
+        
         legend
             .append("circle")
             .attr("r", 6)
-            .attr("cx", 75)
-            .attr("cy", 9)
+            .attr("cx", blueCircleX)
+            .attr("cy", 9.5)
             .attr("fill", NUM_PLAYERS_COLOR);
             
         legend
             .append("text")
-            .attr("dx", 83)
+            .attr("dx", blueCircleX + 10)
             .attr("dy", 15)
             .style("font-family", "Arial")
             .style("font-weight", "bolder")
+            .style("font-size", 14)
             .text(typeToText("num"));
         
         legend
             .append("circle")
             .attr("r", 6)
-            .attr("cx", 245)
-            .attr("cy", 9)
+            .attr("cx", redCircleX)
+            .attr("cy", 9.5)
             .attr("fill", PEAK_PLAYERS_COLOR);
             
         legend
             .append("text")
-            .attr("dx", 253)
+            .attr("dx", redCircleX + 10)
             .attr("dy", 15)
             .style("font-family", "Arial")
             .style("font-weight", "bolder")
+            .style("font-size", 14)
             .text(typeToText("peak"));
     }
     
@@ -180,13 +203,12 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .attr("fill", t => g_tagToColor[t])
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
-        //.attr("transform", "rotate(-45)")
         .on("click", handleClickDotPlotTags)
         .on("mouseover", handleMouseOverDotPlotTags)
         .on("mouseout", handleMouseOutDotPlotTags)
-        .each(wrap);
-        
-
+        .each(wrap)
+        .append("title")
+        .text(d => d);
 
     svgX
         .select("g.xAxis")
@@ -195,7 +217,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .attr("font-weight", "bolder")
         .attr("font-size", 12);
 
-    var drag = d3.drag()
+    const drag = d3.drag()
         .on("drag", dragmove)
         .on("start", dragstart);
 
@@ -210,8 +232,8 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
     
     svg
         .select(".drag")
-        .attr("width", width + margin.right)
-        .attr("height", height)
+        .attr("width", dpWidth + dpMargin.right)
+        .attr("height", dpHeight)
         .style("fill", "none")
         .style("pointer-events", "all")
         .call(drag);
@@ -250,7 +272,8 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         let moved = 0;
         let dragStartY = 0;
         let oldTranslateY = 0;
-        resetDrag()
+
+        resetDrag();
         
     function dragstart(event) {
         dragStartY = event.y;
@@ -265,20 +288,20 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             if (y > 0)
                 y = 0;
             
-            if (y < (-height / 20 * data.length + height)) 
-                y = -height / 20 * data.length + height;
+            if (y < (-dpHeight / 20 * data.length + dpHeight)) 
+                y = -dpHeight / 20 * data.length + dpHeight;
                 
             moved = y;
 
-            d3.select('.dots').attr("transform", "translate(" + 0 + "," + y + ")");
+            d3.select('.dots').attr("transform", "translate(0, " + y + ")");
 
-            d3.select('.yAxis').attr("transform", "translate(" + 0 +" ," + y + ")")
+            d3.select('.yAxis').attr("transform", "translate(0, " + y + ")")
         }   
     }
 
     function resetDrag() {
-        d3.select('.dots').attr("transform", "translate(" + 0 + "," + moved + ")");
-        svg.select('.yAxis').attr("transform", "translate("+ 0 +" ," + moved + ")")
+        d3.select('.dots').attr("transform", "translate(0, " + moved + ")");
+        svg.select('.yAxis').attr("transform", "translate(0, " + moved + ")")
     }
 }
 

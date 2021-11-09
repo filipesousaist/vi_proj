@@ -163,3 +163,25 @@ div {
     cursor: pointer;
     text-shadow: 0 0 5px yellow, 0 0 15px yellow, 0 0 30px yellow;
 }
+
+.idiom_background {
+    position: absolute;
+    background-color: #eeeeee;
+    border: 1px solid #aaaaaa;
+    border-radius: 35px;
+
+    width: -webkit-calc(100% - 15px);
+    width:    -moz-calc(100% - 15px);
+    width:         calc(100% - 15px);
+    height: -webkit-calc(100% - 15px);
+    height:    -moz-calc(100% - 15px);
+    height:         calc(100% - 15px);
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.idiom_container {
+    position: relative;
+}

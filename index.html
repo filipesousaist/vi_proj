@@ -14,13 +14,16 @@
 		<script language="JavaScript" type="text/javascript" src="libs/d3.layout.cloud.js"></script>
 
 		<!-- JS -->
-		<script language="JavaScript" type="text/javascript" src="scripts/behavior.js"></script>
 		<script language="JavaScript" type="text/javascript" src="scripts/math.js"></script>
 		<script language="JavaScript" type="text/javascript" src="scripts/wordCloud.js"></script>
 		<script language="JavaScript" type="text/javascript" src="scripts/dotPlot.js"></script>
 		<script language="JavaScript" type="text/javascript" src="scripts/smallMultiples.js"></script>
+		<script language="JavaScript" type="text/javascript" src="scripts/behavior.js"></script>
+		
 		<!-- CSS -->
 		<link rel="stylesheet" href="style/styles.css">
+
+		<link rel='icon' href='steam.ico' type='image/x-icon'>
 	</head>
 
 	<body onload="init();">
@@ -28,32 +31,38 @@
 		<div id="idioms">
 			<div id="left_idioms">
 				<div id="top_idioms">
-					<div id="word_cloud_container">
-						<div id="word_cloud_title"></div>
-						<div id="word_cloud"></div>
-						<div class="tag-container">
-							<input  />
+					<div id="word_cloud_container" class="idiom_container">
+						<div class="idiom_background">
+							<div id="word_cloud_title"></div>
+							<div id="word_cloud"></div>
+							<div class="tag-container">
+								<input/>
+							</div>
+							<button onclick="reset()">Reset</button>
 						</div>
-						<button onclick="reset()">Reset</button>
 					</div>
-					<div id="dot_plot_container">
-						<div id="dot_plot_title"></div>
-						<div id="dot_plot"></div>
-						<div id="dot_plot_legend"></div>
+					<div id="dot_plot_container" class="idiom_container">
+						<div class="idiom_background">
+							<div id="dot_plot_title"></div>
+							<div id="dot_plot"></div>
+							<div id="dot_plot_legend"></div>
+						</div>
 					</div>
 				</div>
 				<div id="bottom_idioms"></div>
 			</div>
 			
-			<div id="barcharts">
-				<div id="barcharts_title"></div>
-				<div id="small_multiples">
-					<div id="small1"></div> 
-					<div id="small2"></div> 
-					<div id="small3"></div>
-					<div id="small4"></div> 
-					<div id="small5"></div> 
-				</div>	
+			<div id="barcharts" class="idiom_container">
+				<div class="idiom_background">
+					<div id="barcharts_title"></div>
+					<div id="small_multiples">
+						<div id="small1"></div> 
+						<div id="small2"></div> 
+						<div id="small3"></div>
+						<div id="small4"></div> 
+						<div id="small5"></div> 
+					</div>
+				</div>
 			</div>
 		</div>
 		

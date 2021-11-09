@@ -69,7 +69,6 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .tickSizeOuter(0)
         .tickFormat(d => d < 1000 ? d : (d / 1000) + "K");
 
-
     if (!update) {
         d3
             .select("div#dot_plot")
@@ -92,7 +91,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .select("g")
         .attr("transform", "translate(" + 0 + "," + margin.top + ")")
 
-    const svg2 = d3
+    const svgY = d3
         .select("div#dot_plot")
         .select("svg.y")
         .attr("width", margin.left)
@@ -119,7 +118,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             .append("g")
             .attr("class", "xAxis");
 
-        svg2
+        svgY
             .append("g")
             .attr("class", "yAxis");
         
@@ -160,9 +159,9 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
     }
     
     function wrap() {
-        var self = d3.select(this),
-            textLength = self.node().getComputedTextLength(),
-            text = self.text();
+        const self = d3.select(this);
+        let textLength = self.node().getComputedTextLength();
+        let text = self.text();
         while (textLength > 90 && text.length > 0) {
             text = text.slice(0, -1);
             self.text(text + '...');
@@ -178,6 +177,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .style("text-anchor", "end")
         .attr("font-family", "Arial")
         .attr("font-weight", "bolder")
+        .attr("font-size", 12)
         .attr("fill", t => g_tagToColor[t])
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
@@ -189,10 +189,13 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         
 
 
-    svg2
+    svgY
         .select("g.yAxis")
         .call(yAxis)
-        .attr("transform", "translate(-1, 0)");
+        .attr("transform", "translate(-1, 0)")
+        .attr("font-family", "Arial")
+        .attr("font-weight", "bolder")
+        .attr("font-size", 12);
 
     var drag = d3.drag()
         .on("drag", dragmove)
@@ -281,7 +284,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
 }
 
 function typeToText(type) {
-    return (type == "num") ? "No. players (avg.)" : "Peak players (avg.)"
+    return (type == "num") ? "No. players (avg.)" : "Peak players (avg.)";
 }
 
 function handleClickDotPlotTags(_, d) {

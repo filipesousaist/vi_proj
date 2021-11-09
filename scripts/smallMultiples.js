@@ -107,9 +107,8 @@ function createBarChart(data, tag, chartNum, update) {
             .append("svg")
             .attr("class", "x" + chartNum)
             .append("g");
-
     }
-    const svg3 = d3
+    const svgTitle = d3
         .select("div#small" + chartNum)
         .select("svg.title" + chartNum)
         .attr("width", width + margin.left + margin.right)
@@ -128,7 +127,7 @@ function createBarChart(data, tag, chartNum, update) {
         .select("g")
         .attr("transform", "translate(" + margin.left + ", 0)");
     
-    const svg2 = d3
+    const svgX = d3
         .select("div#small" + chartNum)
         .select("svg.x" + chartNum)
         .attr("width", width + margin.left + margin.right)
@@ -141,22 +140,23 @@ function createBarChart(data, tag, chartNum, update) {
 
     if (!update) {
         svg
-        .append("rect")
-        .attr("class", "drag_small_multiples")
-        svg3
-        .append("text")
-        .attr("class", "title");
-        svg2
-        .append("g")
-        .attr("class", "xAxis");
+            .append("rect")
+            .attr("class", "drag_small_multiples");
+        svgTitle
+            .append("text")
+            .attr("class", "title");
+        svgX
+            .append("g")
+            .attr("class", "xAxis");
         svg
-        .append("g")
-        .attr("class", "yAxis");
+            .append("g")
+            .attr("class", "yAxis");
         svg
-        .append("g")
-        .attr("class", "bars" + chartNum);    
+            .append("g")
+            .attr("class", "bars" + chartNum);    
     }
-    var drag = d3.drag()
+
+    const drag = d3.drag()
         .on("drag", dragmove)
         .on("start", dragstart);
 
@@ -173,7 +173,7 @@ function createBarChart(data, tag, chartNum, update) {
         .style("pointer-events", "all")
         .call(drag);
 
-    svg3
+    svgTitle
         .select("text.title")
         .style("transform", "translateY(20px)")
         .data([tag])
@@ -181,11 +181,23 @@ function createBarChart(data, tag, chartNum, update) {
         .attr("text-anchor", "middle")
         .attr("font-family", "Arial")
         .attr("font-weight", "bolder")
+        .attr("font-size", 16)
         .style("fill", g_tagToColor[tag])
         .attr("x", width / 2)   
         .on("click", handleClickSmallMultiplesTitle)
         .on("mouseover", handleMouseOverSmallMultiplesTitle)
         .on("mouseout", handleMouseOutSmallMultiplesTitle);
+
+    function wrap() {
+        const self = d3.select(this);
+        let textLength = self.node().getComputedTextLength();
+        let text = self.text();
+        while (textLength > 150 && text.length > 0) {
+            text = text.slice(0, -1);
+            self.text(text + '...');
+            textLength = self.node().getComputedTextLength();
+        }
+    }
 
     svg
         .select("g.yAxis")
@@ -193,12 +205,18 @@ function createBarChart(data, tag, chartNum, update) {
         .selectAll("text")  
         .style("text-anchor", "end")
         .attr("font-family", "Arial")
-        .attr("font-weight", "bolder");
+        .attr("font-weight", "bolder")
+        .attr("font-size", 12)
+        .each(wrap);
 	
-    svg2
+    svgX
         .select("g.xAxis")
         .call(xAxis)
         .attr("transform", "translate(0, 0)")
+        .selectAll("text")
+        .attr("font-family", "Arial")
+        .attr("font-weight", "bolder")
+        .attr("font-size", 12);
 	
 	svg
 		.select("g.bars" + chartNum)
@@ -223,15 +241,14 @@ function createBarChart(data, tag, chartNum, update) {
                 .select("title")
                 .text(d => d["name"] + ": " + round(d["num"], 2)),
             exit => exit.remove()
-        );	
+        );
 
+    let moved = 0;
+    let dragStartY = 0;
+    let oldTranslateY = 0;
 
+    resetDrag();
 
-    var moved = 0;
-    var dragStartY = 0;
-    var oldTranslateY = 0;
-
-    resetDrag()
     function dragstart(event) {
         dragStartY = event.y;
         oldTranslateY = moved;

@@ -45,33 +45,33 @@ let g_idToName;
 // For each tag, its color
 let g_tagToColor;
 
+
 // **** Functions ****
 
 function init() {
     Promise
-    .all([
-        d3.csv("data/tags.csv"), 
-        d3.csv("data/playerCountHistory.csv"),
-        d3.csv("data/information.csv")
-    ])
-    .then(([tags, playerCountHistory, info]) => {
-        initIdioms();
+        .all([
+            d3.csv("data/tags.csv"), 
+            d3.csv("data/playerCountHistory.csv"),
+            d3.csv("data/information.csv")
+        ])
+        .then(([tags, playerCountHistory, info]) => {
+            initIdioms();
 
-        g_tags = tags;
-        g_playerCountHistory = playerCountHistory;
-        g_info = info;
-        [g_allTags, g_allIds] = getAllTagsAndIds();
-        g_suggestedTags = g_allTags.slice();
-        g_hasTag = createHasTagDict();
-        g_idToName = createIdToNameDict();
-        g_tagToColor = createTagToColorDict();
-        
-        updatePlots(false);
-        //addPanning();
-    })
-    .catch((error) => {
-        console.log(error);
-    });
+            g_tags = tags;
+            g_playerCountHistory = playerCountHistory;
+            g_info = info;
+            [g_allTags, g_allIds] = getAllTagsAndIds();
+            g_suggestedTags = g_allTags.slice();
+            g_hasTag = createHasTagDict();
+            g_idToName = createIdToNameDict();
+            g_tagToColor = createTagToColorDict();
+            
+            updatePlots(false);
+        })
+        .catch((error) => {
+            console.log(error);
+        });
 }
 
 function initIdioms() {
@@ -276,6 +276,10 @@ function removeShineFromTag() {
         .select("div#barcharts")
         .selectAll(".title")
         .classed("word-shine", false);
+}
+
+function typeToText(type) {
+    return (type == "num") ? "No. players (avg.)" : "Peak players (avg.)";
 }
 
 function reset() {

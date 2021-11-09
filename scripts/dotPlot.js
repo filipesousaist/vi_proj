@@ -22,7 +22,7 @@ function initDotPlot() {
     };
 
     dpWidth = dpDivRect.width - 2 - dpMargin.left - dpMargin.right; // 2 == padding
-    dpXHeight = 40;
+    dpXHeight = 50;
     dpHeight = 410 - dpMargin.top - dpXHeight - dpMargin.bottom;
     dpTitleHeight = 60;
 }
@@ -37,22 +37,11 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         return false;
     });
 
-
     data.sort(function(pc1, pc2) {
-        if(pc1.tag == pc2.tag || pc1.type != pc2.type){
-            if(pc1.type == "num"){
-                return -1;
-            }
-            else{
-                return 1;
-            }
-        }
+        if (pc1.tag == pc2.tag || pc1.type != pc2.type)
+            return (pc1.type == "num") ? -1 : 1;
         return pc2["value"] - pc1["value"];
     });
-
-    
-
-    console.log(data.length)
 
     const y = d3
         .scalePoint()
@@ -139,6 +128,22 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         svgX
             .append("g")
             .attr("class", "xAxis");
+
+        d3
+            .select("div#dot_plot")
+            .append("svg")
+            .attr("transform", "translate(560, -53.5)")
+            .append("path")
+            .attr("d", "M0,0 L0,9 L6,4 L0,0");
+
+        svgX
+            .append("text")
+            .text("Players")
+            .style("text-anchor", "middle")
+            .attr("font-family", "Arial")
+            .attr("font-weight", "bolder")
+            .attr("font-size", 13)
+            .attr("transform", "translate(420, 35)");
         
         const blueCircleX = dpMargin.left + 0.1 * dpWidth;
         const redCircleX = dpMargin.left + 0.55 * dpWidth;
@@ -303,10 +308,6 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         d3.select('.dots').attr("transform", "translate(0, " + moved + ")");
         svg.select('.yAxis').attr("transform", "translate(0, " + moved + ")")
     }
-}
-
-function typeToText(type) {
-    return (type == "num") ? "No. players (avg.)" : "Peak players (avg.)";
 }
 
 function handleClickDotPlotTags(_, d) {

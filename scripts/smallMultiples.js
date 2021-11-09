@@ -11,7 +11,7 @@ function initSmallMultiples() {
         .node()
         .getBoundingClientRect();
 
-    smMargin = { top: 25, right: 20, bottom: 20, left: 180 };
+    smMargin = { top: 25, right: 40, bottom: 40, left: 180 };
 
     smWidth = smDivRect.width - 2 - smMargin.left - smMargin.right;
     smHeight = 180 - smMargin.top - smMargin.bottom;
@@ -162,6 +162,21 @@ function createBarChart(data, tag, chartNum, update) {
         svgX
             .append("g")
             .attr("class", "xAxis");
+        d3
+            .select("div#small" + chartNum)
+            .append("svg")
+            .attr("transform", "translate(663, 136.5)")
+            .append("path")
+            .attr("d", "M0,0 L0,9 L6,4 L0,0");
+            
+        svgX
+            .append("text")
+            .text(typeToText("num"))
+            .style("text-anchor", "middle")
+            .attr("font-family", "Arial")
+            .attr("font-weight", "bolder")
+            .attr("font-size", 13)
+            .attr("transform", "translate(450, 36)");
         svg
             .append("g")
             .attr("class", "yAxis");
@@ -228,7 +243,6 @@ function createBarChart(data, tag, chartNum, update) {
     svgX
         .select("g.xAxis")
         .call(xAxis)
-        .attr("transform", "translate(0, 0)")
         .selectAll("text")
         .attr("font-family", "Arial")
         .attr("font-weight", "bolder")

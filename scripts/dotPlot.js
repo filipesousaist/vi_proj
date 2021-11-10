@@ -273,13 +273,12 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             exit =>
                 exit.remove()
         );
-
         
-        let moved = 0;
-        let dragStartY = 0;
-        let oldTranslateY = 0;
+    let moved = 0;
+    let dragStartY = 0;
+    let oldTranslateY = 0;
 
-        resetDrag();
+    resetDrag();
         
     function dragstart(event) {
         dragStartY = event.y;
@@ -302,7 +301,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             d3.select('.dots').attr("transform", "translate(0, " + y + ")");
 
             d3.select('.yAxis').attr("transform", "translate(0, " + y + ")")
-        }   
+        }
     }
 
     function resetDrag() {

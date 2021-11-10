@@ -80,7 +80,6 @@ document.addEventListener('click', (e) => {
     tags.splice(index, 1);
     addTags();
     updateSuggestedTags(tagLabel, true, false);
-
   }
 })
 

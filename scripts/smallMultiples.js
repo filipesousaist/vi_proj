@@ -171,6 +171,7 @@ function createBarChart(data, tag, chartNum, update, maxNumPlayers) {
         d3
             .select("div#small" + chartNum)
             .append("svg")
+            .style("position", "absolute")
             .attr("transform", "translate(664, 136.5)")
             .append("path")
             .attr("d", "M0,0 L0,9 L6,4 L0,0");

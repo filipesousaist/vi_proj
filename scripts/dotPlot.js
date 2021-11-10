@@ -132,6 +132,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         d3
             .select("div#dot_plot")
             .append("svg")
+            .style("position", "absolute")
             .attr("transform", "translate(560, -53.5)")
             .append("path")
             .attr("d", "M0,0 L0,9 L6,4 L0,0");

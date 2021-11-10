@@ -22,9 +22,9 @@ function initDotPlot() {
     };
 
     dpWidth = dpDivRect.width - 2 - dpMargin.left - dpMargin.right; // 2 == padding
-    dpXHeight = 25;
-    dpHeight = 410 - dpMargin.top - 50 - dpMargin.bottom;
+    dpXHeight = 35;
     dpTitleHeight = 30;
+    dpHeight = 410 - dpMargin.top - dpXHeight - dpTitleHeight - dpMargin.bottom;
 }
 
 function createDotPlot(numAndPeakPlayersPerTag, update) {
@@ -133,7 +133,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             .select("div#dot_plot")
             .append("svg")
             .style("position", "absolute")
-            .attr("transform", "translate(515, -28.5)")
+            .attr("transform", "translate(515, -38.25)")
             .append("path")
             .attr("d", "M0,0 L0,9 L6,4 L0,0");
 
@@ -144,7 +144,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             .attr("font-family", "Arial")
             .attr("font-weight", "bolder")
             .attr("font-size", 13)
-            .attr("transform", "translate(380, 22)");
+            .attr("transform", "translate(380, 32)");
         
         const blueCircleX = dpMargin.left + 0.1 * dpWidth;
         const redCircleX = dpMargin.left + 0.55 * dpWidth;

@@ -10,7 +10,7 @@ function initWordCloud() {
         .getBoundingClientRect();
     
     wcWidth = wcDivRect.width - 2; // 2 == padding
-    wcHeight = 350;
+    wcHeight = 395;
     wcTitleHeight = 30;
 }
 

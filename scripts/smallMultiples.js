@@ -13,9 +13,10 @@ function initSmallMultiples() {
 
     smMargin = { top: 25, right: 40, bottom: 40, left: 180 };
 
+    console.log(smDivRect.width)
     smWidth = smDivRect.width - 2 - smMargin.left - smMargin.right;
     smHeight = 180 - smMargin.top - smMargin.bottom;
-    smTitleHeight = 60;
+    smTitleHeight = 30;
 }
 
 function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
@@ -69,7 +70,7 @@ function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
             .attr("height", smTitleHeight)
             .append("text")
             .text("Most Popular Games")
-            .attr("transform", "translate(" + (smWidth + smMargin.left + smMargin.right) / 2 + "," + smTitleHeight / 2 + ")")
+            .attr("transform", "translate(" + (smWidth + smMargin.left + smMargin.right) / 2 + "," + 25 + ")")
             .attr("text-anchor", "middle")
             .attr("text-decoration", "underline")
             .attr("font-size", "25")
@@ -172,7 +173,7 @@ function createBarChart(data, tag, chartNum, update, maxNumPlayers) {
             .select("div#small" + chartNum)
             .append("svg")
             .style("position", "absolute")
-            .attr("transform", "translate(664, 136.5)")
+            .attr("transform", "translate(595, 136.5)")
             .append("path")
             .attr("d", "M0,0 L0,9 L6,4 L0,0");
             
@@ -183,7 +184,7 @@ function createBarChart(data, tag, chartNum, update, maxNumPlayers) {
             .attr("font-family", "Arial")
             .attr("font-weight", "bolder")
             .attr("font-size", 13)
-            .attr("transform", "translate(450, 36)");
+            .attr("transform", "translate(395, 36)");
         svg
             .append("g")
             .attr("class", "yAxis");

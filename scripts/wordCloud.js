@@ -11,7 +11,7 @@ function initWordCloud() {
     
     wcWidth = wcDivRect.width - 2; // 2 == padding
     wcHeight = 350;
-    wcTitleHeight = 60;
+    wcTitleHeight = 30;
 }
 
 function createWordCloud(update = false) {
@@ -78,7 +78,7 @@ function createWordCloud(update = false) {
                 .attr("height", wcTitleHeight)
                 .append("text")
                 .text("Most Frequent Tags")
-                .attr("transform", "translate(" + wcWidth / 2 + "," + wcTitleHeight / 2 + ")")
+                .attr("transform", "translate(" + wcWidth / 2 + "," + 25 + ")")
                 .attr("text-anchor", "middle")
                 .attr("text-decoration", "underline")
                 .attr("font-size", "25")

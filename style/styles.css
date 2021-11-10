@@ -3,18 +3,35 @@ body {
     width: 1920px;
     height: 1080px;
     margin: 0;
+    background-image: url("/img/controllerBG.jpg");
+    background-size: 519px;
 }
 
 div {
     float: left;
 }
 
+#title{
+    font-size: 200%;
+    font-family: 'Arial';
+    font-weight: bolder;
+    text-decoration-line: underline;
+    color: white;
+    text-align: center;
+    margin-top: 0px;
+    margin-bottom: 5px;
+    background-color: rgb(66, 66, 66);
+}
+
 #top_bar {
-    width: 100%;
-    height: 80px;
+    width: 90%;
+    height: 50px;
     background-image: url("/img/TopBar.PNG");
     background-repeat: no-repeat;
     background-size: 100% 100%;
+    float: none;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #left_idioms {
@@ -22,14 +39,15 @@ div {
 }
 
 #bottom_idioms {
-    height: 500px;
-    width: 1200px;
+    height: 510px;
+    width: 1133px;
     background-image: url("/img/BottomIdioms.PNG");
     background-repeat: no-repeat;
     background-size: 100% 100%;
     float: none;
     position: absolute;
     top: 580px;
+    margin-left: 40px;
 }
 
 #idioms {
@@ -39,18 +57,22 @@ div {
 }
 
 #word_cloud_container {
-    width: 600px;
-    height: 500px;
+    width: 550px;
+    height: 450px;
+    margin-left: 35px;
 }
 
 #dot_plot_container {
-    width: 600px;
-    height: 500px;
+    width: 550px;
+    height: 450px;
+    margin-left: 50px;
 }
 
 #barcharts {
-    width: 720px;
+    width: 650px;
     height: 1000px;
+    float: right;
+    margin-right: 35px;
 }
 
 #barchats_title, #small_multiples {
@@ -167,7 +189,7 @@ div {
 
 .idiom_background {
     position: absolute;
-    background-color: #eeeeee;
+    background-color: #cececef5;
     border: 1px solid #aaaaaa;
     border-radius: 35px;
 
@@ -186,24 +208,24 @@ div {
 .idiom_container {
     position: relative;
 }
-
+/*
 .body_background {
     position: relative;
-    background-color: #eeeeee;
+    background-color: #e0e0e0;
     border: 1px solid #aaaaaa;
     border-radius: 35px;
 
     width: -webkit-calc(100% + 35px);
     width:    -moz-calc(100% + 35px);
     width:         calc(100% + 35px);
-    height: -webkit-calc(100% + 35px);
-    height:    -moz-calc(100% + 35px);
-    height:         calc(100% + 35px);
+    height: -webkit-calc(100% + 45px);
+    height:    -moz-calc(100% + 45px);
+    height:         calc(100% + 45px);
 
-    top: 50%;
+    top: 52%;
     left: 52%;
     transform: translate(-50%, -50%);
-}
+}*/
 
 .reset_button{
     border-radius: 5px;

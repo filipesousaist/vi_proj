@@ -27,7 +27,6 @@
 	</head>
 
 	<body onload="init();">
-		<div class="body_background">
 		<div id="top_bar"></div>
 		<div id="idioms">
 			<div id="left_idioms">
@@ -36,7 +35,10 @@
 						<div class="idiom_background">
 							<div id="word_cloud_title"></div>
 							<div id="word_cloud"></div>
-							
+							<div class="tag-container">
+								<input/>
+							</div>
+							<button onclick="reset()">Reset</button>
 						</div>
 					</div>
 					<div id="dot_plot_container" class="idiom_container">
@@ -63,12 +65,8 @@
 				</div>
 			</div>
 		</div>
-		<div class="tag-container">
-			<input/>
-		</div>
-		<button onclick="reset()" class="reset_button">Reset</button>
-		</div>
-			
+		
+		
 		<script language="JavaScript" type="text/javascript" src="scripts/tags.js"></script>
 		<script language="JavaScript" type="text/javascript" src="scripts/autocomplete.js"></script>
 	</body>

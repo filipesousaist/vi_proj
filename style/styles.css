@@ -67,6 +67,7 @@ div {
     margin-bottom: 5px;
     width: 70%;
     position: relative;
+    transform: translate(15%, 0);
 }
 
 .tag-container .tag{
@@ -184,4 +185,31 @@ div {
 
 .idiom_container {
     position: relative;
+}
+
+.body_background {
+    position: relative;
+    background-color: #eeeeee;
+    border: 1px solid #aaaaaa;
+    border-radius: 35px;
+
+    width: -webkit-calc(100% + 35px);
+    width:    -moz-calc(100% + 35px);
+    width:         calc(100% + 35px);
+    height: -webkit-calc(100% + 35px);
+    height:    -moz-calc(100% + 35px);
+    height:         calc(100% + 35px);
+
+    top: 50%;
+    left: 52%;
+    transform: translate(-50%, -50%);
+}
+
+.reset_button{
+    border-radius: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 5px;
+    position: relative;
+    transform: translate(210px, 3px);
 }

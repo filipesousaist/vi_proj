@@ -28,40 +28,50 @@
 
 	<body onload="init();">
 		<h2 id="title">Steam Game Data</h2>
-		<div id="top_bar"></div>
-		<div id="idioms">
-			<div id="left_idioms">
-				<div id="top_idioms">
-					<div id="word_cloud_container" class="idiom_container">
-						<div class="idiom_background">
-							<div id="word_cloud_title"></div>
-							<div id="word_cloud"></div>
-							<div class="tag-container">
-								<input/>
-							</div>
-							<button onclick="reset()">Reset</button>
-						</div>
+		<div id="topContent">
+			<div id="rightColumn">
+				<h2 id="searchTitle">Selected Tags</h2>
+				<div id="searchBox">
+					<div class="tag-container">
+						<input/>
 					</div>
-					<div id="dot_plot_container" class="idiom_container">
-						<div class="idiom_background">
-							<div id="dot_plot_title"></div>
-							<div id="dot_plot"></div>
-							<div id="dot_plot_legend"></div>
-						</div>
-					</div>
+					<button onclick="reset()">Reset</button>
 				</div>
-				<div id="bottom_idioms"></div>
 			</div>
-			
-			<div id="barcharts" class="idiom_container">
-				<div class="idiom_background">
-					<div id="barcharts_title"></div>
-					<div id="small_multiples">
-						<div id="small1"></div> 
-						<div id="small2"></div> 
-						<div id="small3"></div>
-						<div id="small4"></div> 
-						<div id="small5"></div> 
+			<div id="leftColumn">
+				<div id="top_bar"></div>
+				<div id="idioms">
+					<div id="left_idioms">
+						<div id="top_idioms">
+							<div id="word_cloud_container" class="idiom_container">
+								<div class="idiom_background">
+									<div id="word_cloud_title"></div>
+									<div id="word_cloud"></div>
+									
+								</div>
+							</div>
+							<div id="dot_plot_container" class="idiom_container">
+								<div class="idiom_background">
+									<div id="dot_plot_title"></div>
+									<div id="dot_plot"></div>
+									<div id="dot_plot_legend"></div>
+								</div>
+							</div>
+						</div>
+						<div id="bottom_idioms"></div>
+					</div>
+					
+					<div id="barcharts" class="idiom_container">
+						<div class="idiom_background">
+							<div id="barcharts_title"></div>
+							<div id="small_multiples">
+								<div id="small1"></div> 
+								<div id="small2"></div> 
+								<div id="small3"></div>
+								<div id="small4"></div> 
+								<div id="small5"></div> 
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -22,9 +22,9 @@ function initDotPlot() {
     };
 
     dpWidth = dpDivRect.width - 2 - dpMargin.left - dpMargin.right; // 2 == padding
-    dpXHeight = 50;
-    dpHeight = 410 - dpMargin.top - dpXHeight - dpMargin.bottom;
-    dpTitleHeight = 60;
+    dpXHeight = 25;
+    dpHeight = 410 - dpMargin.top - 50 - dpMargin.bottom;
+    dpTitleHeight = 30;
 }
 
 function createDotPlot(numAndPeakPlayersPerTag, update) {
@@ -114,7 +114,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             .attr("height", dpTitleHeight)
             .append("text")
             .text("Most Popular Tags")
-            .attr("transform", "translate(" + (dpWidth + dpMargin.left + dpMargin.right) / 2 + "," + dpTitleHeight / 2 + ")")
+            .attr("transform", "translate(" + (dpWidth + dpMargin.left + dpMargin.right) / 2 + "," + 25 + ")")
             .attr("text-anchor", "middle")
             .attr("text-decoration", "underline")
             .attr("font-size", "25")
@@ -133,7 +133,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             .select("div#dot_plot")
             .append("svg")
             .style("position", "absolute")
-            .attr("transform", "translate(560, -53.5)")
+            .attr("transform", "translate(515, -28.5)")
             .append("path")
             .attr("d", "M0,0 L0,9 L6,4 L0,0");
 

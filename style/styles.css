@@ -51,6 +51,10 @@ div {
     margin-right: auto;
 }
 
+#resetButton{
+    width: 27%;
+}
+
 #left_idioms {
     display: block;
 }
@@ -98,14 +102,13 @@ div {
 }
 
 .tag-container{
-    width: auto;
     border: 2px solid #ccc;
     border-radius: 5px;
     display: flex;
     flex-wrap: wrap;
     align-content: flex-start;
     margin-bottom: 5px;
-    width: 70%;
+    width: 60%;
     position: relative;
 }
 
@@ -135,6 +138,7 @@ div {
     font-weight: bolder;
     color: #333;
     flex: 1;
+    width: -webkit-fill-available;
     
 }
 

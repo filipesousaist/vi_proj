@@ -123,7 +123,6 @@ function updateSuggestedTags(tag, addTag, reset){
     }else if(addTag){
         g_suggestedTags.push(tag);
     }else{
-        console.log(tag)
         g_suggestedTags.splice(g_suggestedTags.indexOf(tag), 1);
     }
 }

@@ -144,7 +144,7 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             .attr("font-family", "Arial")
             .attr("font-weight", "bolder")
             .attr("font-size", 13)
-            .attr("transform", "translate(420, 35)");
+            .attr("transform", "translate(380, 22)");
         
         const blueCircleX = dpMargin.left + 0.1 * dpWidth;
         const redCircleX = dpMargin.left + 0.55 * dpWidth;

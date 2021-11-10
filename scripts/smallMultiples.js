@@ -49,9 +49,9 @@ function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
     );
 
     let maxNumPlayers = 0;
-    for (let i = 0; i < 5; i ++) {
-        maxNumPlayers = Math.max(maxNumPlayers, tagsGames[topTags[i]][0]["num"]);
-    }
+    for (let i = 0; i < 5; i ++)
+        if (tagsGames[topTags[i]] != undefined && tagsGames[topTags[i]].length > 0)
+            maxNumPlayers = Math.max(maxNumPlayers, tagsGames[topTags[i]][0]["num"]);
 
     // Create bar charts
     for (let i = 0; i < 5; i ++) {
@@ -81,7 +81,6 @@ function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
 function createBarChart(data, tag, chartNum, update, maxNumPlayers) {
     for (let row of data)
         row["name"] = g_idToName[row["id"]];
-
 
     const x = d3.scaleLinear()
         .domain([0, 1.1 * maxNumPlayers])
@@ -307,7 +306,7 @@ function createBarChart(data, tag, chartNum, update, maxNumPlayers) {
 
             d3.select('.bars' + chartNum).attr("transform", "translate(0, " + y + ")");
 
-            svg.select('.yAxis').attr("transform", "translate(0, " + y + ")")
+            svg.select('.yAxis').attr("transform", "translate(0, " + y + ")");
         }
     }
 

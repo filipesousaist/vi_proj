@@ -13,7 +13,7 @@ function initSmallMultiples() {
 
     smMargin = { top: 25, right: 40, bottom: 40, left: 180 };
 
-    console.log(smDivRect.width)
+    
     smWidth = smDivRect.width - 2 - smMargin.left - smMargin.right;
     smHeight = 180 - smMargin.top - smMargin.bottom;
     smTitleHeight = 30;
@@ -55,7 +55,6 @@ function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
 
     // Create bar charts
     for (let i = 0; i < 5; i ++) {
-        console.log(tagsGames[topTags[i]]);
         if (i < topTags.length)
             createBarChart(tagsGames[topTags[i]], topTags[i], i + 1, update, maxNumPlayers);
         else

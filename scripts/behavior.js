@@ -45,6 +45,9 @@ let g_idToName;
 // For each tag, its color
 let g_tagToColor;
 
+// Array with all PGDR values
+let g_pgdr;
+
 
 // **** Functions ****
 
@@ -53,14 +56,16 @@ function init() {
         .all([
             d3.csv("data/tags.csv"), 
             d3.csv("data/playerCountHistory.csv"),
-            d3.csv("data/information.csv")
+            d3.csv("data/information.csv"),
+            d3.csv("data/pgdr.csv")
         ])
-        .then(([tags, playerCountHistory, info]) => {
+        .then(([tags, playerCountHistory, info, pgdr]) => {
             initIdioms();
 
             g_tags = tags;
             g_playerCountHistory = playerCountHistory;
             g_info = info;
+            g_pgdr = pgdr;
             [g_allTags, g_allIds] = getAllTagsAndIds();
             g_suggestedTags = g_allTags.slice();
             g_hasTag = createHasTagDict();
@@ -78,6 +83,7 @@ function initIdioms() {
     initWordCloud();
     initDotPlot();
     initSmallMultiples();
+    initDivergingPlot();
 }
 
 function getAllTagsAndIds() {
@@ -300,4 +306,5 @@ function updatePlots(update = true) {
     createWordCloud(update);
     createDotPlot(numAndPeakPlayersPerTag, update);
     createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update);
+    createDivergingPlot(update);
 }

@@ -21,7 +21,7 @@ function autocomplete(inp) {
         const tag = g_suggestedTags[i];
         for (let start = 0; start <= tag.length - val.length; start ++) {
           /*check if the item starts with the same letters as the text field value:*/
-          console.log(tag, start, tag.substr(start, val.length).toUpperCase());
+          
           if (tag.substr(start, val.length).toUpperCase() == val.toUpperCase()) {
             /*create a DIV element for each matching element:*/
             b = document.createElement("div");

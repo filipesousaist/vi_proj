@@ -67,13 +67,10 @@ div {
 #bottom_idioms {
     height: 510px;
     width: 1133px;
-    background-image: url("/img/BottomIdioms.PNG");
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
     float: none;
     position: absolute;
     top: 580px;
-    margin-left: 45px;
+    
 }
 
 #idioms {
@@ -89,6 +86,12 @@ div {
 }
 
 #dot_plot_container {
+    width: 550px;
+    height: 450px;
+    margin-left: 35px;
+}
+
+#diverging_plot_container {
     width: 550px;
     height: 450px;
     margin-left: 35px;

@@ -67,12 +67,12 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
         .axisBottom()
         .scale(x)
         .tickSizeOuter(0)
-        .tickFormat(d => d < 1000 ? d : (d / 1000) + "K");;
+        .tickFormat(d => d < 1000 ? d : (d / 1000) + "K");
 
     const yAxis = d3
         .axisLeft()
         .scale(y)
-        .tickSizeOuter(0)
+        .tickSizeOuter(0);
         
 
     if (!update) {

@@ -26,16 +26,24 @@ function initDivergingPlot() {
 }
 
 function createDivergingPlot(update) {
+    let pgdrGames = g_pgdr.slice()
+    for (let selectedTag of g_selectedTags)
+        for (let i = 0; i < pgdrGames.length; i++)
+            if (!g_hasTag[pgdrGames[i]["appid"]][selectedTag]) {
+                pgdrGames.splice(i, 1);
+                continue;
+            }
 
-    g_pgdr.sort((pc1, pc2) => pc2["PGDR"] - pc1["PGDR"]);
-    for (let row of g_pgdr){
+    pgdrGames.sort((pc1, pc2) => pc2["PGDR"] - pc1["PGDR"]);
+    for (let row of pgdrGames){
         row["name"] = g_idToName[row["appid"]];
-        delete row["appid"];
+        //delete row["appid"];
     }
 
-    const data = g_pgdr.slice()
 
-    console.log(data)
+    const data = pgdrGames.slice()
+
+    //console.log(data)
 
     const y = d3.scaleBand()
         .domain(data.map(d => d["name"]))
@@ -161,9 +169,9 @@ function createDivergingPlot(update) {
         .call(yAxis)
         .selectAll("text")
         .data(data)
-        .attr("x", x(0))
+        //.attr("x", x(0))
       	.attr("dx", function(d) {
-        	return d["PGDR"] < 0 ? 10 : -10;
+        	return d["PGDR"] < 0 ? 22 : -10;
       	})
         .style("text-anchor", d => d["PGDR"] < 0 ? "start" : "end")
         .attr("font-family", "Arial")
@@ -171,7 +179,7 @@ function createDivergingPlot(update) {
         .attr("font-size", 12)
         .each(wrap)
         .append("title")
-        .text(d => d)
+        .text(d => d["name"])
         
     svg.select("g.yAxis").selectAll("g.tick line")
         .data(data)

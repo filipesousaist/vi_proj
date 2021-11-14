@@ -14,10 +14,16 @@ const NUM_TAG_COLORS = TAG_COLORS.length;
 // Currently selected tags in the word cloud
 let g_selectedTags = [];
 
+// Currently selected time range
+let g_timeRange = [];
+
 // For each tag, whether there is at least 1 game with that tag and all of the selected tags
 let g_useTag;
 // For each id, whether that game has all of the selected tags
 let g_useId;
+
+// Flag to change between games and publishers
+let g_isPublishers = false;
 
 
 // **** Global constants ****
@@ -25,7 +31,9 @@ let g_useId;
 // Datasets (without any changes or filters)
 let g_tags;
 let g_playerCountHistory;
+let g_playerCountHistoryP;
 let g_info;
+let g_publishers;
 
 // Array with all tags
 let g_allTags;
@@ -41,13 +49,14 @@ let g_hasTag;
 
 // For each id, its name
 let g_idToName;
+let g_idToNameP;
 
 // For each tag, its color
 let g_tagToColor;
 
 // Array with all PGDR values
 let g_pgdr;
-
+let g_pgdrP;
 
 // **** Functions ****
 
@@ -57,19 +66,27 @@ function init() {
             d3.csv("data/tags.csv"), 
             d3.csv("data/playerCountHistory.csv"),
             d3.csv("data/information.csv"),
-            d3.csv("data/pgdr.csv")
+            d3.csv("data/pgdr.csv"),
+            d3.csv("data/publishers.csv"),
+            d3.csv("data/playerCountHistory_p.csv"),
+            d3.csv("data/pgdr_p.csv")
         ])
-        .then(([tags, playerCountHistory, info, pgdr]) => {
+        .then(([tags, playerCountHistory, info, pgdr, publishers, playerCountHistoryP, pgdrP]) => {
             initIdioms();
+            createSlider();
 
             g_tags = tags;
             g_playerCountHistory = playerCountHistory;
+            g_playerCountHistoryP = playerCountHistoryP;
             g_info = info;
             g_pgdr = pgdr;
+            g_pgdrP = pgdrP;
+            g_publishers = publishers;
             [g_allTags, g_allIds] = getAllTagsAndIds();
             g_suggestedTags = g_allTags.slice();
             g_hasTag = createHasTagDict();
             g_idToName = createIdToNameDict();
+            g_idToNameP = createIdToNameDictP();
             g_tagToColor = createTagToColorDict();
             
             updatePlots(false);
@@ -117,6 +134,15 @@ function createIdToNameDict() {
 
     for (let row of g_info)
         idToName[row["appid"]] = row["name"];
+
+    return idToName;
+}
+
+function createIdToNameDictP() {
+    const idToName = {};
+
+    for (let row of g_publishers)
+        idToName[row["publisher_id"]] = row["publisher"];
 
     return idToName;
 }
@@ -180,19 +206,27 @@ function filterTagsAndIds(filteredPlayerCountHistory) {
 
 function computePlayerCounts(playerCountHistory) {
     const playerCounts = {};
+    const timeParse = d3.timeParse('%m %Y')
+    const formatTime = d3.timeFormat('%b %Y')
+
 
     for (let row of playerCountHistory) {
         const id = row["appid"];
-        if (id in playerCounts) {
-            playerCounts[id]["num"] += parseFloat(row["mean"]);
-            playerCounts[id]["peak"] += parseFloat(row["max"]);
-            playerCounts[id]["n"] ++;
-        }
-        else {
-            playerCounts[id] = {
-                "num": parseFloat(row["mean"]),
-                "peak": parseFloat(row["max"]),
-                "n": 1
+        var parsedRowTime = timeParse(row["Month"] + " " + row["Year"])
+        if (parsedRowTime >= g_timeRange[0] &&
+        parsedRowTime <= g_timeRange[1]){
+            
+            if (id in playerCounts) {
+                playerCounts[id]["num"] += parseFloat(row["mean"]);
+                playerCounts[id]["peak"] += parseFloat(row["max"]);
+                playerCounts[id]["n"] ++;
+            }
+            else {
+                playerCounts[id] = {
+                    "num": parseFloat(row["mean"]),
+                    "peak": parseFloat(row["max"]),
+                    "n": 1
+                }
             }
         }
     }
@@ -292,19 +326,40 @@ function reset() {
     g_selectedTags = [];
     clearTags();
     clearTagBox();
+    resetSlider();
     updatePlots();
     updateSuggestedTags(null, false, true);
 
 }
 
+function switchToGames(){
+    if (g_isPublishers) {
+        g_isPublishers = false;
+        updatePlots();
+    }
+}
+
+function switchToPublishers(){
+    if (!g_isPublishers) {
+        g_isPublishers = true;
+        updatePlots();
+    }
+}
+
 function updatePlots(update = true) {
+    updatePlayerCountPlots(update);
+    createWordCloud(update);
+    createDivergingPlot(update);
+}
+
+
+function updatePlayerCountPlots(update = true) {
     const filteredPCH = filterBySelectedTags();
     [g_useTag, g_useId] = filterTagsAndIds(filteredPCH);
     const playerCounts = computePlayerCounts(filteredPCH);
     const numAndPeakPlayersPerTag = getNumAndPeakPlayersPerTag(playerCounts);
 
-    createWordCloud(update);
     createDotPlot(numAndPeakPlayersPerTag, update);
     createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update);
-    createDivergingPlot(update);
 }
+

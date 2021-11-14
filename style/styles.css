@@ -46,11 +46,11 @@ div {
 }
 
 #top_bar {
-    width: 90%;
+    width: 100%;
     height: 50px;
-    background-image: url("/img/TopBar.PNG");
+    /*background-image: url("/img/TopBar.PNG");
     background-repeat: no-repeat;
-    background-size: 100% 100%;
+    background-size: 100% 100%;*/
     float: none;
     margin-left: auto;
     margin-right: auto;
@@ -269,4 +269,73 @@ div {
 
 .axis text{
     cursor: move;
+}
+.range_slider {
+    position: relative;
+    width: 200px;
+    height: 35px;
+    text-align: center;
+
+    background-color: #cececef5;
+    border: 1px solid #aaaaaa;
+    border-radius: 35px;
+
+    width: -webkit-calc(75% - 15px);
+    width:    -moz-calc(75% - 15px);
+    width:         calc(75% - 15px);
+    height: -webkit-calc(100% - 15px);
+    height:    -moz-calc(100% - 15px);
+    height:         calc(100% - 15px);
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-71%, -50%);
+}
+
+.range_slider input {
+    pointer-events: none;
+    position: absolute;
+    overflow: hidden;
+    left: 0;
+    top: 15px;
+    width: 100%;
+    outline: none;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+}
+
+.range_slider input::-webkit-slider-thumb {
+    pointer-events: all;
+    position: relative;
+    z-index: 1;
+    outline: 0;
+}
+
+.range_slider input::-moz-range-thumb {
+    pointer-events: all;
+    position: relative;
+    z-index: 10;
+    -moz-appearance: none;
+    width: 9px;
+}
+
+.range_slider input::-moz-range-track {
+    position: relative;
+    z-index: -1;
+    background-color: rgb(0, 0, 0);
+    border: 0;
+}
+.range_slider input:last-of-type::-moz-range-track {
+    -moz-appearance: none;
+    background: none transparent;
+    border: 0;
+}
+
+.range_slider input[type=range]::-moz-focus-outer {
+    border: 0;
+}
+
+.parameter-value{
+    fill: rgb(255, 200, 80);
 }

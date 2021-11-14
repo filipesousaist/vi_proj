@@ -48,6 +48,9 @@ let g_tagToColor;
 // Array with all PGDR values
 let g_pgdr;
 
+// Array with info for parallel coord
+let g_parallelInfo;
+
 
 // **** Functions ****
 
@@ -57,15 +60,17 @@ function init() {
             d3.csv("data/tags.csv"), 
             d3.csv("data/playerCountHistory.csv"),
             d3.csv("data/information.csv"),
+            d3.csv("data/info.csv"),
             d3.csv("data/pgdr.csv")
         ])
-        .then(([tags, playerCountHistory, info, pgdr]) => {
+        .then(([tags, playerCountHistory, info, parallelInfo,pgdr]) => {
             initIdioms();
 
             g_tags = tags;
             g_playerCountHistory = playerCountHistory;
             g_info = info;
             g_pgdr = pgdr;
+            g_parallelInfo = parallelInfo;
             [g_allTags, g_allIds] = getAllTagsAndIds();
             g_suggestedTags = g_allTags.slice();
             g_hasTag = createHasTagDict();
@@ -84,6 +89,7 @@ function initIdioms() {
     initDotPlot();
     initSmallMultiples();
     initDivergingPlot();
+    initParallelCoordinates();
 }
 
 function getAllTagsAndIds() {
@@ -184,8 +190,8 @@ function computePlayerCounts(playerCountHistory) {
     for (let row of playerCountHistory) {
         const id = row["appid"];
         if (id in playerCounts) {
-            playerCounts[id]["num"] += parseFloat(row["mean"]);
-            playerCounts[id]["peak"] += parseFloat(row["max"]);
+            playerCounts[id]["num"] += Number.isNaN(parseFloat(row["mean"])) ? 0 : parseFloat(row["mean"]);
+            playerCounts[id]["peak"] += Number.isNaN(parseFloat(row["max"])) ? 0 : parseFloat(row["max"]);
             playerCounts[id]["n"] ++;
         }
         else {
@@ -218,7 +224,6 @@ function getNumAndPeakPlayersPerTag(playerCounts) {
         for (let id of idsToUse) {
             if (g_hasTag[id][tag]) {
                 const playerCount = playerCounts[id];
-
                 n += playerCount["n"];
                 num_players += playerCount["num"];
                 peak_players += playerCount["peak"];
@@ -307,4 +312,5 @@ function updatePlots(update = true) {
     createDotPlot(numAndPeakPlayersPerTag, update);
     createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update);
     createDivergingPlot(update);
+    createParallelCoordinates(playerCounts, update);
 }

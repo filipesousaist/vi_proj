@@ -65,12 +65,8 @@ div {
 }
 
 #bottom_idioms {
-    height: 510px;
-    width: 1133px;
-    float: none;
     position: absolute;
     top: 580px;
-    
 }
 
 #idioms {
@@ -92,6 +88,12 @@ div {
 }
 
 #diverging_plot_container {
+    width: 550px;
+    height: 450px;
+    margin-left: 35px;
+}
+
+#parallel_container {
     width: 550px;
     height: 450px;
     margin-left: 35px;
@@ -239,4 +241,32 @@ div {
 
 .idiom_container {
     position: relative;
+}
+
+.background path {
+    fill: none;
+    stroke: rgb(180, 180, 180);
+    shape-rendering: crispEdges;
+}
+  
+.foreground path {
+    fill: none;
+    stroke: steelblue;
+}
+
+.brush .extent {
+    fill-opacity: .3;
+    stroke: #fff;
+    shape-rendering: crispEdges;
+}
+
+.axis line,
+.axis path {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.axis text{
+    cursor: move;
 }

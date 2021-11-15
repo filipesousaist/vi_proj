@@ -134,15 +134,13 @@ function createParallelCoordinates(playerCounts, update) {
                 .append("path")
                 .attr("d", path)
                 .on("mouseover", handleMouseOverLine)
-                .on("mouseout", handleMouseOutLine)
-                .text(d => d["name"]),
+                .on("mouseout", handleMouseOutLine),
             update =>
                 update
                 .select("path")
                 .attr("d", path)
                 .on("mouseover", handleMouseOverLine)
-                .on("mouseout", handleMouseOutLine)
-                .text(d => d["name"]),
+                .on("mouseout", handleMouseOutLine),
             exit =>
                 exit.remove(),
         );
@@ -364,8 +362,9 @@ function createParallelCoordinates(playerCounts, update) {
                     return i;
             })
             .style("stroke-width", 3)
-            .style("stroke", "yellow");
-
+            .style("stroke", "yellow")
+            .append("title")
+            .text(d => d["name"] + "\n" + "No.Languages" + ": " + d["num_languages"] + "\n" + "RPR" + ": " + round(d["RPR"], 2) + "\n" + "No. players (avg.)" + ": " + round(d["num"], 2) + "\n" + "Peak players (avg.)" + ": " + round(d["peak"], 2)),
         d3
             .select("div#barcharts")
             .selectAll(".yAxis")
@@ -397,7 +396,8 @@ function createParallelCoordinates(playerCounts, update) {
                     return i;
             })
             .style("stroke-width", 1)
-            .style("stroke", "steelblue");
+            .style("stroke", "steelblue")
+            .select("title").remove();
 
         d3
             .select("div#barcharts")

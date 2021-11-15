@@ -26,13 +26,9 @@ function initDivergingPlot() {
 }
 
 function createDivergingPlot(update) {
-    const pgdrGames = g_pgdr.slice();
-    for (let selectedTag of g_selectedTags)
-        for (let i = 0; i < pgdrGames.length; i++)
-            if (!g_hasTag[pgdrGames[i]["appid"]][selectedTag]) {
-                pgdrGames.splice(i, 1);
-                continue;
-            }
+    let pgdrGames = g_pgdr.filter(game => {
+        return g_useId[game["appid"]]
+    })
 
     pgdrGames.sort((pc1, pc2) => pc2["PGDR"] - pc1["PGDR"]);
     for (let row of pgdrGames){

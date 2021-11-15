@@ -26,7 +26,7 @@ function initDivergingPlot() {
 }
 
 function createDivergingPlot(update) {
-    let pgdrGames = g_pgdr.slice()
+    const pgdrGames = g_pgdr.slice();
     for (let selectedTag of g_selectedTags)
         for (let i = 0; i < pgdrGames.length; i++)
             if (!g_hasTag[pgdrGames[i]["appid"]][selectedTag]) {

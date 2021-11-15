@@ -361,6 +361,9 @@ function updatePlots(update = true) {
 
 function updatePlayerCountPlots(update = true) {
     const filteredPCH = filterBySelectedTags();
+    if(!(filteredPCH === undefined)){
+        console.log(filteredPCH)
+    }
     [g_useTag, g_useId] = filterTagsAndIds(filteredPCH);
     const playerCounts = computePlayerCounts(filteredPCH);
     const numAndPeakPlayersPerTag = getNumAndPeakPlayersPerTag(playerCounts);

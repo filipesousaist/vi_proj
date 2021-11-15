@@ -28,19 +28,17 @@ function initParallelCoordinates() {
 }
 
 function createParallelCoordinates(playerCounts, update) {
-
+    const data = [];
+    
+    d3.selectAll("div#parallel").selectAll("svg").remove();
+    
     // Create new array with all necessary parallel information
-    const data = g_parallelInfo.map(function(row){
-        let game = playerCounts[+row["id"]];
-        if(game != null){
-            let newRow = Object.assign({}, row);
-            newRow["num"] = game["num"];
-            newRow["peak"] = game["peak"];
-            return newRow;
-        }
-    });
-    console.log(g_parallelInfo)
-    console.log(playerCounts)
+    for(row in g_parallelInfo){
+        let game = playerCounts[+g_parallelInfo[row]["id"]];
+        if(game != null && !(game === undefined)){
+            data.push({"id": g_parallelInfo[row]["id"], "name":  g_parallelInfo[row]["name"], "num_languages": g_parallelInfo[row]["num_languages"], "RPR": g_parallelInfo[row]["RPR"], "num": game["num"], "peak": game["peak"]});
+        } 
+    }
 
     // Create parallel coordinates chart
     var dragging = {};
@@ -65,13 +63,16 @@ function createParallelCoordinates(playerCounts, update) {
             .attr("font-family", "Arial")
             .attr("font-weight", "bolder");
         
-        d3
-            .select("div#parallel")
-            .append("svg")
-            .attr("class", "plot")
-            .append("g");
     }
 
+    update = false;
+
+    d3
+        .select("div#parallel")
+        .append("svg")
+        .attr("class", "plot")
+        .append("g");
+        
     dimensions = Object.keys(data[0]).filter(function(d) { return d != "name" && d != "id" && d != "%_positive_reviews" })
 
     x = d3.scalePoint()
@@ -98,60 +99,147 @@ function createParallelCoordinates(playerCounts, update) {
         .select("g")
         .attr("transform", "translate(" + pMargin.left + "," + pMargin.top + ")");
 
+
+    if(!update){
+        svg.append("g")
+            .attr("class", "background")
+        
+        svg.append("g")
+            .attr("class", "foreground")
+    }
     // Add grey background lines for context.
-    background = svg.append("g")
-        .attr("class", "background")
+    background = svg.select("g.background")
         .selectAll("path")
         .data(data)
-        .enter()
-        .append("path")
-        .attr("d", path);
+        .join(
+            enter =>
+                enter
+                .append("path")
+                .attr("d", path),
+            update =>
+                update
+                .select("path")
+                .attr("d", path),
+            exit =>
+                exit.remove(),
+        );
 
     // Add blue foreground lines for focus.
-    foreground = svg.append("g")
-        .attr("class", "foreground")
+    foreground = svg.select("g.foreground")
         .selectAll("path")
         .data(data)
-        .enter()
-        .append("path")
-        .attr("d", path);
+        .join(
+            enter =>
+                enter
+                .append("path")
+                .attr("d", path)
+                .text(d => d["name"]),
+            update =>
+                update
+                .select("path")
+                .attr("d", path)
+                .text(d => d["name"]),
+            exit =>
+                exit.remove(),
+        );
 
 
     // Add a group element for each dimension.
     var g = svg.selectAll(".dimension")
         .data(dimensions)
-        .enter().append("g")
-        .attr("class", "dimension")
-        .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
-        .call(d3.drag()
-            .subject(function(d) { return {x: x(d)}; })
-            .on("start", function(d, i) {
-                dragging[i] = x(i);
-                background.attr("visibility", "hidden");
-            })
-            .on("drag", function(d,i) {
-                dragging[i] = Math.min(pWidth, Math.max(0, d.x));
-                foreground.attr("d", path);
-                dimensions.sort(function(a, b) { return position(a) - position(b); });
-                x.domain(dimensions);
-                g.attr("transform", function(d) { return "translate(" + position(d) + ")"; })
-            })
-            .on("end", function(d, i) {
-                delete dragging[i];
-                transition(d3.select(this)).attr("transform", "translate(" + x(i) + ")");
-                transition(foreground).attr("d", path);
-                background
-                    .attr("d", path)
-                    .transition()
-                    .delay(500)
-                    .duration(0)
-                    .attr("visibility", null);
-            })
+        .join(
+            enter => enter
+                .append("g")
+                .attr("class", "dimension")
+                .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+                .call(d3.drag()
+                    .subject(function(d) { return {x: x(d)}; })
+                    .on("start", function(d, i) {
+                        dragging[i] = x(i);
+                        background.attr("visibility", "hidden");
+                    })
+                    .on("drag", function(d,i) {
+                        dragging[i] = Math.min(pWidth, Math.max(0, d.x));
+                        foreground.attr("d", path);
+                        dimensions.sort(function(a, b) { return position(a) - position(b); });
+                        x.domain(dimensions);
+                        g.attr("transform", function(d) { return "translate(" + position(d) + ")"; })
+                    })
+                    .on("end", function(d, i) {
+                        delete dragging[i];
+                        transition(d3.select(this)).attr("transform", "translate(" + x(i) + ")");
+                        transition(foreground).attr("d", path);
+                        background
+                            .attr("d", path)
+                            .transition()
+                            .delay(500)
+                            .duration(0)
+                            .attr("visibility", null)}
+                    )
+                ),
+            update => update
+                .select("g.dimension")
+                .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+                .call(d3.drag()
+                    .subject(function(d) { return {x: x(d)}; })
+                    .on("start", function(d, i) {
+                        dragging[i] = x(i);
+                        background.attr("visibility", "hidden");
+                    })
+                    .on("drag", function(d,i) {
+                        dragging[i] = Math.min(pWidth, Math.max(0, d.x));
+                        foreground.attr("d", path);
+                        dimensions.sort(function(a, b) { return position(a) - position(b); });
+                        x.domain(dimensions);
+                        g.attr("transform", function(d) { return "translate(" + position(d) + ")"; })
+                    })
+                    .on("end", function(d, i) {
+                        delete dragging[i];
+                        transition(d3.select(this)).attr("transform", "translate(" + x(i) + ")");
+                        transition(foreground).attr("d", path);
+                        background
+                            .attr("d", path)
+                            .transition()
+                            .delay(500)
+                            .duration(0)
+                            .attr("visibility", null)}
+                    )
+                ),
+            exit => exit.remove()
+
         );
 
+    if(!update){
+        g.append("g")
+            .attr("class", "axis")
+            .each(function(d) { d3.select(this).call(axis.scale(y[d])); })
+            .append("text")
+            .attr("class", "title")
+            .style("text-anchor", "middle")
+            .attr("font-family", "Arial")
+            .attr("font-weight", "bolder")
+            .attr("font-size", 13)
+            .style("fill", "black")
+            .attr("y", -20)
+            .text(function(d) { 
+                if(d == "num_languages")
+                    return "No.Languages";
+                if(d == "num")
+                    return "No.Players(avg.)";
+                if(d == "peak")
+                    return "No.Peak Players(avg.)";
+                return d;
+            })
+            .attr("dy", 0)
+            .call(wrap, 102);
+    }
+    else{
+        g.select("g.axis")
+            .each(function(d) { d3.select(this).call(axis.scale(y[d])); })
+    }
+
     // Add an axis and title.
-    g.append("g")
-        .attr("class", "axis")
+    /*g.select("g.axis")
         .each(function(d) { d3.select(this).call(axis.scale(y[d])); })
         .append("text")
         .attr("class", "title")
@@ -171,7 +259,7 @@ function createParallelCoordinates(playerCounts, update) {
             return d;
         })
         .attr("dy", 0)
-        .call(wrap, 102);
+        .call(wrap, 102);*/
     
     function wrap(text, width) {
         text.each(function() {

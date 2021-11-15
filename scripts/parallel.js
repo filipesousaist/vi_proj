@@ -4,7 +4,7 @@ let pWidth;
 let pHeight;
 let pXHeight;
 let pTitleHeight;
-let brushHeight;
+let brushWidth;
 
 function initParallelCoordinates() {
     pDivRect = d3
@@ -15,16 +15,16 @@ function initParallelCoordinates() {
 
     pMargin = {
         top: 50,
-        right: 30,
+        right: 20,
         bottom: 10,
-        left: 65
+        left: 40
     };
 
     pWidth = pDivRect.width - 2 - pMargin.left - pMargin.right; // 2 == padding
     pXHeight = 35;
     pTitleHeight = 30;
     pHeight = 410 - pMargin.top - pXHeight - pTitleHeight - pMargin.bottom;
-    brushHeight = 50;
+    brushWidth = 20;
 }
 
 function createParallelCoordinates(playerCounts, update) {
@@ -77,7 +77,7 @@ function createParallelCoordinates(playerCounts, update) {
 
     x = d3.scalePoint()
         .range([0, pWidth-pMargin.right])
-        .padding(-.1)
+        .padding(.1)
         .domain(dimensions);
 
     var y = {}
@@ -133,11 +133,15 @@ function createParallelCoordinates(playerCounts, update) {
                 enter
                 .append("path")
                 .attr("d", path)
+                .on("mouseover", handleMouseOverLine)
+                .on("mouseout", handleMouseOutLine)
                 .text(d => d["name"]),
             update =>
                 update
                 .select("path")
                 .attr("d", path)
+                .on("mouseover", handleMouseOverLine)
+                .on("mouseout", handleMouseOutLine)
                 .text(d => d["name"]),
             exit =>
                 exit.remove(),
@@ -151,7 +155,7 @@ function createParallelCoordinates(playerCounts, update) {
             enter => enter
                 .append("g")
                 .attr("class", "dimension")
-                .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+                .attr("transform", function(d) { console.log(x(d)) ;return "translate(" + x(d) + ")"; })
                 .call(d3.drag()
                     .subject(function(d) { return {x: x(d)}; })
                     .on("start", function(d, i) {
@@ -291,8 +295,8 @@ function createParallelCoordinates(playerCounts, update) {
       .attr("class", "brush")
       .each(function(d) {
         d3.select(this).call(y[d].brush = d3.brushY(y[d]).extent([
-        [-(brushHeight / 2), 0],
-        [brushHeight / 2, pHeight]
+        [-(brushWidth / 2), 0],
+        [brushWidth / 2, pHeight]
       ]).on("start", brushstart).on("brush end", brush));
       })
     .selectAll("rect")
@@ -318,8 +322,11 @@ function createParallelCoordinates(playerCounts, update) {
         d.sourceEvent.stopPropagation();
     }
 
+    let selected = [];
+
     // Handles a brush event, toggling the display of foreground lines.
-    function brush() {
+    function brush(i) {
+        selected = [];
         const actives = [];
         // filter brushed extents
         svg.selectAll('.brush')
@@ -336,8 +343,81 @@ function createParallelCoordinates(playerCounts, update) {
         foreground.style('display', function(d) {
             return actives.every(function(active) {
                 const dim = active.dimension;
-                return active.extent[0] <= y[dim](d[dim]) && y[dim](d[dim]) <= active.extent[1];
+                if(active.extent[0] <= y[dim](d[dim]) && y[dim](d[dim]) <= active.extent[1]){
+                    selected.push(d)
+                    return true;
+                }
+                return false;
             }) ? null : 'none';
         });
+        if(i.type === "end"){
+            console.log(selected);
+        }
     }
+    
+    function handleMouseOverLine(_, d){
+        d3
+            .select("div#parallel")
+            .select("svg.plot")
+            .select("g.foreground").selectAll("path").filter(function(i) {
+                if(i["name"] == d["name"])
+                    return i;
+            })
+            .style("stroke-width", 3)
+            .style("stroke", "yellow");
+
+        d3
+            .select("div#barcharts")
+            .selectAll(".yAxis")
+            .selectAll("text")
+            .filter(function(i){
+                if(i == d["name"])
+                    return i;
+            })
+            .classed("word-shine", true);
+
+        d3.
+            select("div#diverging_plot")
+            .selectAll(".yAxis")
+            .selectAll("text")
+            .filter(function(i){
+                console.log(i)
+                if(i["name"] == d["name"])
+                    return i;
+            })
+            .classed("word-shine", true);
+    }
+
+    function handleMouseOutLine(_, d){
+        d3
+            .select("div#parallel")
+            .select("svg.plot")
+            .select("g.foreground").selectAll("path").filter(function(i) {
+                if(i["name"] == d["name"])
+                    return i;
+            })
+            .style("stroke-width", 1)
+            .style("stroke", "steelblue");
+
+        d3
+            .select("div#barcharts")
+            .selectAll(".yAxis")
+            .selectAll("text")
+            .filter(function(i){
+                if(i == d["name"])
+                    return i;
+            })
+            .classed("word-shine", false);
+
+        d3.
+            select("div#diverging_plot")
+            .selectAll(".yAxis")
+            .selectAll("text")
+            .filter(function(i){
+                if(i["name"] == d["name"])
+                    return i;
+            })
+            .classed("word-shine", false);
+    }
+
 }

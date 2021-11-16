@@ -316,7 +316,6 @@ function createParallelCoordinates(playerCounts, update) {
     }
 
     function brushstart(d) {
-        console.log()
         d.sourceEvent.stopPropagation();
     }
 
@@ -342,14 +341,14 @@ function createParallelCoordinates(playerCounts, update) {
             return actives.every(function(active) {
                 const dim = active.dimension;
                 if(active.extent[0] <= y[dim](d[dim]) && y[dim](d[dim]) <= active.extent[1]){
-                    selected.push(d)
+                    selected.push(d['id'])
                     return true;
                 }
                 return false;
             }) ? null : 'none';
         });
         if(i.type === "end"){
-            console.log(selected);
+            updatePlots(true, selected);
         }
     }
     
@@ -380,7 +379,6 @@ function createParallelCoordinates(playerCounts, update) {
             .selectAll(".yAxis")
             .selectAll("text")
             .filter(function(i){
-                console.log(i)
                 if(i["name"] == d["name"])
                     return i;
             })

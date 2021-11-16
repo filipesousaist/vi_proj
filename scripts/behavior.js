@@ -191,6 +191,17 @@ function filterBySelectedTags() {
     });
 }
 
+function filterBySelectedIds(filteredPCH, selectedIds){   	
+    console.log(selectedIds)
+    let filteredIds = [];
+    for(let row in filteredPCH){
+        if(selectedIds.includes(filteredPCH[row]["appid"])){
+            filteredIds.push(filteredPCH[row])
+        }
+    }
+    return filteredIds;
+}
+
 function filterTagsAndIds(filteredPlayerCountHistory) {
     const useTag = {};
     const useId = {};
@@ -352,17 +363,18 @@ function switchToPublishers(){
     }
 }
 
-function updatePlots(update = true) {
-    updatePlayerCountPlots(update);
+function updatePlots(update = true, selectedIds = []) {
+    console.log(selectedIds)
+    updatePlayerCountPlots(update, selectedIds);
     createWordCloud(update);
     createDivergingPlot(update);
 }
 
 
-function updatePlayerCountPlots(update = true) {
-    const filteredPCH = filterBySelectedTags();
-    if(!(filteredPCH === undefined)){
-        console.log(filteredPCH)
+function updatePlayerCountPlots(update = true, selectedIds = []) {
+    let filteredPCH = filterBySelectedTags();
+    if(filteredPCH !== undefined && selectedIds.length > 0){
+        filteredPCH = filterBySelectedIds(filteredPCH, selectedIds)
     }
     [g_useTag, g_useId] = filterTagsAndIds(filteredPCH);
     const playerCounts = computePlayerCounts(filteredPCH);
@@ -370,6 +382,7 @@ function updatePlayerCountPlots(update = true) {
 
     createDotPlot(numAndPeakPlayersPerTag, update);
     createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update);
-    createParallelCoordinates(playerCounts, update);
+    if(selectedIds.length == 0){
+        createParallelCoordinates(playerCounts, update);
+    }
 }
-

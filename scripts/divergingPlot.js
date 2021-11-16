@@ -114,13 +114,14 @@ function createDivergingPlot(update) {
             .attr("font-weight", "bolder");
         
         svg
+            .append("rect")
+            .attr("class", "drag_diverging");
+
+        svg
             .append("g")
             .attr("class", "yAxis")
             .attr("transform", "translate(" + x(0) + ",0)");  
         
-        svg
-            .append("rect")
-            .attr("class", "drag_diverging");
 
         svgX
             .append("g")

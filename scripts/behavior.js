@@ -21,6 +21,7 @@ let g_timeRange = [];
 let g_useTag;
 // For each id, whether that game has all of the selected tags
 let g_useId;
+let g_usePid;
 
 // Flag to change between games and publishers
 let g_isPublishers = false;
@@ -43,9 +44,11 @@ let g_suggestedTags;
 
 // Array with all ids
 let g_allIds;
+let g_allPids;
 
 // For each id, whether or not it has each tag
 let g_hasTag;
+let g_hasTagP;
 
 // For each id, its name
 let g_idToName;
@@ -56,11 +59,15 @@ let g_tagToColor;
 
 // Array with all PGDR values
 let g_pgdr;
+let g_pgdrP;
+
+// Dict with arrays of publishers for each game
+let g_gamePublishers;
+
 
 // Array with info for parallel coord
 let g_parallelInfo;
 
-let g_pgdrP;
 
 // **** Functions ****
 
@@ -88,9 +95,11 @@ function init() {
             g_parallelInfo = parallelInfo;
             g_pgdrP = pgdrP;
             g_publishers = publishers;
-            [g_allTags, g_allIds] = getAllTagsAndIds();
+            [g_allTags, g_allIds, g_allPids] = getAllTagsAndIds(); //all ids for publishers
             g_suggestedTags = g_allTags.slice();
+            g_gamePublishers = createGamePublishers();
             g_hasTag = createHasTagDict();
+            g_hasTagP = createHasTagDictP();
             g_idToName = createIdToNameDict();
             g_idToNameP = createIdToNameDictP();
             g_tagToColor = createTagToColorDict();
@@ -119,8 +128,30 @@ function getAllTagsAndIds() {
         allIds.push(row["id"])
     );
 
-    return [allTags, allIds];
+    const allPids = [];
+    g_publishers.forEach(row => 
+        allPids.push(row["publisher_id"])
+    );
+
+    return [allTags, allIds, allPids];
 }
+
+function createGamePublishers(){
+    const gamePublishers = {};
+
+    for (let row of g_publishers){
+        const id = row["id"];
+        if (id in gamePublishers){
+            gamePublishers[id].push(row["publisher_id"]);
+        }
+        else {
+            gamePublishers[id] = [row["publisher_id"]];
+        }
+    }
+
+    return gamePublishers;
+}
+
 
 function createHasTagDict() {
     const hasTag = {};
@@ -135,6 +166,31 @@ function createHasTagDict() {
 
     return hasTag;
 }
+
+//hastagdict for publishers
+function createHasTagDictP() {
+    const hasTag = {};
+
+    for (let row of g_tags) {
+        const pids = g_gamePublishers[row["id"]];
+        for (let pid of pids){
+            if (!(pid in hasTag))
+                hasTag[pid] = {};
+            for (let tag in row)
+                if (tag != "id"){
+                    if (tag in hasTag[pid])
+                        hasTag[pid][tag] ||= (row[tag] == "True");
+    
+                    else{
+                        hasTag[pid][tag] = (row[tag] == "True");
+                    }
+                }
+        }
+    }
+
+    return hasTag;
+}
+
 
 function createIdToNameDict() {
     const idToName = {};
@@ -172,6 +228,18 @@ function getIdsToUse() {
     return idsToUse;
 }
 
+//idstouse for publishers
+function getIdsToUseP() {
+    const idsToUse = [];
+    g_allPids.forEach(ids => {
+        if (!(idsToUse.includes(ids)) && g_usePid[ids])
+            idsToUse.push(ids);
+        
+    });
+    return idsToUse;
+}
+
+
 function getTagsToUse() {
     const tagsToUse = [];
     g_allTags.forEach(tag => {
@@ -186,6 +254,16 @@ function filterBySelectedTags() {
         const id = row["appid"];
         for (let tag of g_selectedTags)
             if (!g_hasTag[id][tag])
+                return false;
+        return true;
+    });
+}
+
+function filterBySelectedTagsP() {
+    return g_playerCountHistoryP.filter(row => {
+        const id = row["pid"];
+        for (let tag of g_selectedTags)
+            if (!g_hasTagP[id][tag])
                 return false;
         return true;
     });
@@ -211,11 +289,29 @@ function filterTagsAndIds(filteredPlayerCountHistory) {
     return [useTag, useId];
 }
 
+function filterTagsAndIdsP(filteredPlayerCountHistory) {
+    const useTag = {};
+    const useId = {};
+
+    for (let tag of g_allTags)
+        useTag[tag] = false;
+
+    for (let id of g_allPids)
+        useId[id] = false;
+    
+    for (let row of filteredPlayerCountHistory) {
+        useId[row["pid"]] = true;
+        for (let tag of g_allTags)
+            if (g_hasTagP[row["pid"]][tag])
+                useTag[tag] = true;
+    }
+        
+    return [useTag, useId];
+}
+
 function computePlayerCounts(playerCountHistory) {
     const playerCounts = {};
     const timeParse = d3.timeParse('%m %Y')
-    const formatTime = d3.timeFormat('%b %Y')
-
 
     for (let row of playerCountHistory) {
         const id = row["appid"];
@@ -241,6 +337,35 @@ function computePlayerCounts(playerCountHistory) {
     return playerCounts;
 }
 
+function computePlayerCountsP(playerCountHistory) {
+    const playerCounts = {};
+    const timeParse = d3.timeParse('%m %Y')
+
+    for (let row of playerCountHistory) {
+        const id = row["pid"];
+        var parsedRowTime = timeParse(row["Month"] + " " + row["Year"])
+        if (parsedRowTime >= g_timeRange[0] &&
+        parsedRowTime <= g_timeRange[1]){
+            
+            if (id in playerCounts) {
+                playerCounts[id]["num"] += Number.isNaN(parseFloat(row["mean"])) ? 0 : parseFloat(row["mean"]);
+                playerCounts[id]["peak"] += Number.isNaN(parseFloat(row["max"])) ? 0 : parseFloat(row["max"]);
+                playerCounts[id]["n"] ++;
+            }
+            else {
+                playerCounts[id] = {
+                    "num": parseFloat(row["mean"]),
+                    "peak": parseFloat(row["max"]),
+                    "n": 1
+                }
+            }
+        }
+    }
+
+    return playerCounts;
+}
+
+
 function getNumAndPeakPlayersPerTag(playerCounts) {
     const idsToUse = getIdsToUse();
     const tagsToUse = getTagsToUse().filter(tag => {
@@ -258,6 +383,38 @@ function getNumAndPeakPlayersPerTag(playerCounts) {
         let peak_players = 0;
         for (let id of idsToUse) {
             if (g_hasTag[id][tag]) {
+                const playerCount = playerCounts[id];
+                n += playerCount["n"];
+                num_players += playerCount["num"];
+                peak_players += playerCount["peak"];
+            }
+        }
+        if (n > 0) {
+            data.push({"tag": tag, "value": num_players / n, "type": "num"});
+            data.push({"tag": tag, "value": peak_players / n, "type": "peak"});
+        }
+    }
+        
+    return data;
+}
+
+function getNumAndPeakPlayersPerTagP(playerCounts) {
+    const idsToUse = getIdsToUseP();
+    const tagsToUse = getTagsToUse().filter(tag => {
+        for (let selectedTag of g_selectedTags)
+            if (tag == selectedTag)
+                return false;
+        return true;
+    });
+
+    const data = [];
+
+    for (let tag of tagsToUse) {
+        let n = 0;
+        let num_players = 0;
+        let peak_players = 0;
+        for (let id of idsToUse) {
+            if (g_hasTagP[id][tag]) {
                 const playerCount = playerCounts[id];
                 n += playerCount["n"];
                 num_players += playerCount["num"];
@@ -354,22 +511,35 @@ function switchToPublishers(){
 
 function updatePlots(update = true) {
     updatePlayerCountPlots(update);
-    createWordCloud(update);
     createDivergingPlot(update);
 }
 
 
 function updatePlayerCountPlots(update = true) {
-    const filteredPCH = filterBySelectedTags();
-    if(!(filteredPCH === undefined)){
-        console.log(filteredPCH)
-    }
-    [g_useTag, g_useId] = filterTagsAndIds(filteredPCH);
-    const playerCounts = computePlayerCounts(filteredPCH);
-    const numAndPeakPlayersPerTag = getNumAndPeakPlayersPerTag(playerCounts);
+    if (!g_isPublishers){
+        const filteredPCH = filterBySelectedTags();
+        [g_useTag, g_useId] = filterTagsAndIds(filteredPCH);
+        const playerCounts = computePlayerCounts(filteredPCH);
+        const numAndPeakPlayersPerTag = getNumAndPeakPlayersPerTag(playerCounts);
 
-    createDotPlot(numAndPeakPlayersPerTag, update);
-    createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update);
-    createParallelCoordinates(playerCounts, update);
+    createWordCloud(update);
+
+        createDotPlot(numAndPeakPlayersPerTag, update);
+        createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update);
+        createParallelCoordinates(playerCounts, update);
+    }
+
+    else{
+        const filteredPCH = filterBySelectedTagsP();
+        [g_useTag, g_usePid] = filterTagsAndIdsP(filteredPCH);
+        const playerCounts = computePlayerCountsP(filteredPCH);
+        const numAndPeakPlayersPerTag = getNumAndPeakPlayersPerTagP(playerCounts);
+
+    createWordCloud(update);
+
+        createDotPlot(numAndPeakPlayersPerTag, update);
+        createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update);
+        createParallelCoordinates(playerCounts, update);
+    }
 }
 

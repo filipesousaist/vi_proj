@@ -12,7 +12,7 @@
 		<!-- Import libraries. -->
 		<script language="JavaScript" type="text/javascript" src="libs/d3.min.js"></script>
 		<script language="JavaScript" type="text/javascript" src="libs/d3.layout.cloud.js"></script>
-		<script src="https://unpkg.com/d3-simple-slider"></script>
+		<script language="JavaScript" type="text/javascript" src="libs/d3-simple-slider.min.js"></script>
 
 		<!-- JS -->
 		<script language="JavaScript" type="text/javascript" src="scripts/math.js"></script>
@@ -33,7 +33,9 @@
 	<body onload="init();">
 		<h2 id="title">Steam Game Data</h2>
 		<div id="topContent">
-			<div id="rightColumn">
+			<div id="leftColumn">
+				<button onclick="switchToGames()">Game</button>
+				<button onclick="switchToPublishers()">Publisher</button>
 				<h2 id="searchTitle">Selected Tags</h2>
 				<div id="searchBox">
 					<div class="tag-container">
@@ -42,7 +44,7 @@
 					<button id="resetButton" onclick="reset()">Reset</button>
 				</div>
 			</div>
-			<div id="leftColumn">
+			<div id="rightColumn">
 				<div id="top_bar">
 					<div id="time_slider"></div>
 				</div>

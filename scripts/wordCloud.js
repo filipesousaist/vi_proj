@@ -18,15 +18,31 @@ function createWordCloud(update = false) {
     const tagsToUse = getTagsToUse();
     const counts = {};
 
-    for (let id of getIdsToUse()) {
-        for (let tag of tagsToUse)
-            if (g_hasTag[id][tag]) {
-                if (counts[tag] != undefined)
-                    counts[tag] ++;
-                else
-                    counts[tag] = 1;
-            }
+    if (!g_isPublishers){
+        for (let id of getIdsToUse()) {
+            for (let tag of tagsToUse)
+                if (g_hasTag[id][tag]) {
+                    if (counts[tag] != undefined)
+                        counts[tag] ++;
+                    else
+                        counts[tag] = 1;
+                }
+        }
     }
+    
+    else {
+        for (let id of getIdsToUseP()) {
+            for (let tag of tagsToUse)
+                if (g_hasTagP[id][tag]) {
+                    if (counts[tag] != undefined)
+                        counts[tag] ++;
+                    else
+                        counts[tag] = 1;
+                }
+        }
+    }
+
+    console.log(counts)
 
     const sorted_counts_pre_remove = Object.entries(counts).sort((a, b) => b[1] - a[1]);
 

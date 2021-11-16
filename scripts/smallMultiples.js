@@ -31,17 +31,34 @@ function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
         tagsGames[tag] = [];
     });
 
-    // Place in arrays the values for all games that have each of the 5 tags
-    for (let id of getIdsToUse()) {
-        topTags.forEach(tag => {
-            if (g_hasTag[id][tag]) {
-                tagsGames[tag].push({
-                    "id": id,
-                    "num": playerCounts[id]["num"] / playerCounts[id]["n"]
-                });
-            }
-        });
+    if (!g_isPublishers) {
+        // Place in arrays the values for all games that have each of the 5 tags
+        for (let id of getIdsToUse()) {
+            topTags.forEach(tag => {
+                if (g_hasTag[id][tag]) {
+                    tagsGames[tag].push({
+                        "id": id,
+                        "num": playerCounts[id]["num"] / playerCounts[id]["n"]
+                    });
+                }
+            });
+        }
     }
+
+    else {
+        for (let id of getIdsToUseP()) {
+            topTags.forEach(tag => {
+                if (g_hasTagP[id][tag]) {
+                    tagsGames[tag].push({
+                        "id": id,
+                        "num": playerCounts[id]["num"] / playerCounts[id]["n"]
+                    });
+                }
+            });
+        }
+    }
+
+    console.log(tagsGames)
 
     // Sort games
     topTags.forEach(tag => 
@@ -78,8 +95,14 @@ function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
 }
 
 function createBarChart(data, tag, chartNum, update, maxNumPlayers) {
-    for (let row of data)
-        row["name"] = g_idToName[row["id"]];
+    if (!g_isPublishers){
+        for (let row of data)
+            row["name"] = g_idToName[row["id"]];
+    }
+    else {
+        for (let row of data)
+        row["name"] = g_idToNameP[row["id"]];
+    }
 
     const x = d3.scaleLinear()
         .domain([0, 1.1 * maxNumPlayers])

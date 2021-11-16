@@ -273,6 +273,18 @@ function createDotPlot(numAndPeakPlayersPerTag, update) {
             exit =>
                 exit.remove()
         );
+    
+    if(data.length == 0){
+        svg
+            .append("text")
+            .attr("class", "warning")
+            .attr("font-family", "Arial")
+            .attr("font-weight", "bolder")
+            .text("No data")
+            .attr("transform", "translate( 40, 165)");
+    }else{
+        svg.select("text.warning").remove();
+    }
         
     let moved = 0;
     let dragStartY = 0;

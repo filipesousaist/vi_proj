@@ -301,6 +301,18 @@ function createBarChart(data, tag, chartNum, update, maxNumPlayers) {
                 .text(d => d["name"] + ": " + round(d["num"], 2)),
             exit => exit.remove()
         );
+    
+    if(data.length == 0){
+        svg
+            .append("text")
+            .attr("class", "warning")
+            .attr("font-family", "Arial")
+            .attr("font-weight", "bolder")
+            .text("No data")
+            .attr("transform", "translate( 40, 50)");
+    }else{
+        svg.select("text.warning").remove();
+    }
 
     let moved = 0;
     let dragStartY = 0;

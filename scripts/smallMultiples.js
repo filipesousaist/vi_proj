@@ -263,6 +263,8 @@ function createBarChart(data, tag, chartNum, update, maxNumPlayers) {
         .attr("font-family", "Arial")
         .attr("font-weight", "bolder")
         .attr("font-size", 12)
+        .on("mouseover", handleMouseOverSmallMultiplesLabels)
+        .on("mouseout", handleMouseOutSmallMultiplesLabels)
         .each(wrap)
         .append("title")
         .text(d => d);
@@ -353,4 +355,92 @@ function handleMouseOverSmallMultiplesTitle(_, d) {
 
 function handleMouseOutSmallMultiplesTitle() {
     removeShineFromTag();
+}
+
+function handleMouseOverSmallMultiplesLabels(_, d){
+    d3
+        .select("div#parallel")
+        .select("svg.plot")
+        .select("g.foreground").selectAll("path").filter(function(i) {
+            if(i["name"] != d)
+                return i;
+        })
+        .style("opacity", 0);
+    
+    d3
+        .select("div#parallel")
+        .select("svg.plot")
+        .select("g.foreground").selectAll("path").filter(function(i) {
+            if(i["name"] == d){
+                return i;
+            }
+
+        })
+        .style("stroke-width", 3)
+        .style("stroke", "yellow");
+       
+    
+    d3
+        .select("div#barcharts")
+        .selectAll(".yAxis")
+        .selectAll("text")
+        .filter(function(i){
+            if(i == d)
+                return i;
+        })
+        .classed("word-shine", true);
+
+    d3.
+        select("div#diverging_plot")
+        .selectAll(".yAxis")
+        .selectAll("text")
+        .filter(function(i){
+            if(i["name"] == d)
+                return i;
+        })
+        .classed("word-shine", true);
+
+}
+
+function handleMouseOutSmallMultiplesLabels(_, d){
+    d3
+        .select("div#parallel")
+        .select("svg.plot")
+        .select("g.foreground").selectAll("path").filter(function(i) {
+            if(i["name"] != d)
+                return i;
+        })
+        .style("opacity", lineOpacity);
+
+    d3
+        .select("div#parallel")
+        .select("svg.plot")
+        .select("g.foreground").selectAll("path").filter(function(i) {
+            if(i["name"] == d){
+                return i;
+            }
+
+        })
+        .style("stroke-width", 1)
+        .style("stroke", "steelblue");
+
+    d3
+        .select("div#barcharts")
+        .selectAll(".yAxis")
+        .selectAll("text")
+        .filter(function(i){
+            if(i == d)
+                return i;
+        })
+        .classed("word-shine", false);
+
+    d3.
+        select("div#diverging_plot")
+        .selectAll(".yAxis")
+        .selectAll("text")
+        .filter(function(i){
+            if(i["name"] == d)
+                return i;
+        })
+        .classed("word-shine", false);
 }

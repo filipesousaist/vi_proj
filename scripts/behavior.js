@@ -270,7 +270,6 @@ function filterBySelectedTagsP() {
 }
 
 function filterBySelectedIds(filteredPCH, selectedIds){   	
-    console.log(selectedIds)
     let filteredIds = [];
     for(let row in filteredPCH){
         if(selectedIds.includes(filteredPCH[row]["appid"])){
@@ -597,7 +596,6 @@ function switchToPublishers(){
 }
 
 function updatePlots(update = true, selectedIds = []) {
-    console.log(selectedIds)
     updatePlayerCountPlots(update, selectedIds);
     createWordCloud(update);
 }

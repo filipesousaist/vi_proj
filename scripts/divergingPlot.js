@@ -150,6 +150,23 @@ function createDivergingPlot(filteredPGDR, update) {
             .append("g")
             .attr("class", "xAxis");
 
+        d3
+            .select("div#diverging_plot")
+            .append("svg")
+            .style("position", "absolute")
+            .attr("transform", "translate(515, -38.25)")
+            .append("path")
+            .attr("d", "M0,0 L0,9 L6,4 L0,0");
+        
+        svgX
+            .append("text")
+            .text("PGDR")
+            .style("text-anchor", "middle")
+            .attr("font-family", "Arial")
+            .attr("font-weight", "bolder")
+            .attr("font-size", 13)
+            .attr("transform", "translate(360, 32)");
+
         svg
             .append("g")
             .attr("class", "bars");    

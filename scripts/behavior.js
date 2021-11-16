@@ -35,6 +35,10 @@ let g_playerCountHistory;
 let g_playerCountHistoryP;
 let g_info;
 let g_publishers;
+let g_pgdr; // Array with all PGDR values
+let g_pgdrP;
+let g_parallelInfo; // Array with info for parallel coord
+let g_parallelInfoP; // Array with info for parallel coord
 
 // Array with all tags
 let g_allTags;
@@ -57,16 +61,9 @@ let g_idToNameP;
 // For each tag, its color
 let g_tagToColor;
 
-// Array with all PGDR values
-let g_pgdr;
-let g_pgdrP;
-
 // Dict with arrays of publishers for each game
 let g_gamePublishers;
 
-
-// Array with info for parallel coord
-let g_parallelInfo;
 
 
 // **** Functions ****
@@ -81,9 +78,10 @@ function init() {
             d3.csv("data/pgdr.csv"),
             d3.csv("data/publishers.csv"),
             d3.csv("data/playerCountHistory_p.csv"),
+            d3.csv("data/info_p.csv"),
             d3.csv("data/pgdr_p.csv")
         ])
-        .then(([tags, playerCountHistory, info, parallelInfo,pgdr, publishers, playerCountHistoryP, pgdrP]) => {
+        .then(([tags, playerCountHistory, info, parallelInfo, pgdr, publishers, playerCountHistoryP, parallelInfoP, pgdrP]) => {
             initIdioms();
             createSlider();
 
@@ -92,8 +90,9 @@ function init() {
             g_playerCountHistoryP = playerCountHistoryP;
             g_info = info;
             g_pgdr = pgdr;
-            g_parallelInfo = parallelInfo;
             g_pgdrP = pgdrP;
+            g_parallelInfo = parallelInfo;
+            g_parallelInfoP = parallelInfoP;
             g_publishers = publishers;
             [g_allTags, g_allIds, g_allPids] = getAllTagsAndIds(); //all ids for publishers
             g_suggestedTags = g_allTags.slice();
@@ -129,9 +128,10 @@ function getAllTagsAndIds() {
     );
 
     const allPids = [];
-    g_publishers.forEach(row => 
-        allPids.push(row["publisher_id"])
-    );
+    g_publishers.forEach(row => {
+        if (!allPids.includes(row["publisher_id"]))
+            allPids.push(row["publisher_id"])
+    });
 
     return [allTags, allIds, allPids];
 }
@@ -232,7 +232,7 @@ function getIdsToUse() {
 function getIdsToUseP() {
     const idsToUse = [];
     g_allPids.forEach(ids => {
-        if (!(idsToUse.includes(ids)) && g_usePid[ids])
+        if (g_usePid[ids])
             idsToUse.push(ids);
         
     });
@@ -267,6 +267,28 @@ function filterBySelectedTagsP() {
                 return false;
         return true;
     });
+}
+
+function filterBySelectedIds(filteredPCH, selectedIds){   	
+    console.log(selectedIds)
+    let filteredIds = [];
+    for(let row in filteredPCH){
+        if(selectedIds.includes(filteredPCH[row]["appid"])){
+            filteredIds.push(filteredPCH[row])
+        }
+    }
+    return filteredIds;
+}
+
+function filterBySelectedIdsP(filteredPCH, selectedIds){   	
+    console.log(selectedIds)
+    let filteredIds = [];
+    for(let row in filteredPCH){
+        if(selectedIds.includes(filteredPCH[row]["pid"])){
+            filteredIds.push(filteredPCH[row])
+        }
+    }
+    return filteredIds;
 }
 
 function filterTagsAndIds(filteredPlayerCountHistory) {
@@ -311,7 +333,8 @@ function filterTagsAndIdsP(filteredPlayerCountHistory) {
 
 function computePlayerCounts(playerCountHistory) {
     const playerCounts = {};
-    const timeParse = d3.timeParse('%m %Y')
+    const timeParse = d3.timeParse('%m %Y');
+
 
     for (let row of playerCountHistory) {
         const id = row["appid"];
@@ -443,6 +466,70 @@ function getTopTagsByNumPlayers(numAndPeakPlayersPerTag, n) {
     return data_num;
 }
 
+function getFilteredPGDR() {
+    const filteredPGDRDict = {};
+    const timeParse = d3.timeParse('%Y-%m');
+
+    for (let row of g_pgdr) {
+        const id = row["appid"];
+        const parsedRowTime = timeParse(row["Date"].substring(0, row["Date"].length - 3));
+        if (parsedRowTime >= g_timeRange[0] && parsedRowTime <= g_timeRange[1]) {
+            if (id in filteredPGDRDict) {
+                filteredPGDRDict[id]["sum"] += parseFloat(row["PGDR"]);
+                filteredPGDRDict[id]["count"] ++;
+            }
+            else
+                filteredPGDRDict[id] = {
+                    "sum": parseFloat(row["PGDR"]),
+                    "count": 1
+                };
+        }
+    }
+
+    const filteredPGDR = [];
+    for (let id in filteredPGDRDict) {
+        const pgdr = filteredPGDRDict[id];
+        filteredPGDR.push({
+            "appid": id,
+            "PGDR": pgdr["sum"] / pgdr["count"]
+        });
+    }
+        
+    return filteredPGDR;
+}
+
+function getFilteredPGDRP() {
+    const filteredPGDRDict = {};
+    const timeParse = d3.timeParse('%Y-%m');
+
+    for (let row of g_pgdrP) {
+        const id = row["publisher_id"];
+        const parsedRowTime = timeParse(row["Date"].substring(0, row["Date"].length - 3));
+        if (parsedRowTime >= g_timeRange[0] && parsedRowTime <= g_timeRange[1]) {
+            if (id in filteredPGDRDict) {
+                filteredPGDRDict[id]["sum"] += parseFloat(row["PGDR"]);
+                filteredPGDRDict[id]["count"] ++;
+            }
+            else
+                filteredPGDRDict[id] = {
+                    "sum": parseFloat(row["PGDR"]),
+                    "count": 1
+                };
+        }
+    }
+
+    const filteredPGDR = [];
+    for (let id in filteredPGDRDict) {
+        const pgdr = filteredPGDRDict[id];
+        filteredPGDR.push({
+            "appid": id,
+            "PGDR": pgdr["sum"] / pgdr["count"]
+        });
+    }
+        
+    return filteredPGDR;
+}
+
 function addShineToTag(tag) {
     d3
         .select("div#word_cloud")
@@ -509,37 +596,47 @@ function switchToPublishers(){
     }
 }
 
-function updatePlots(update = true) {
-    updatePlayerCountPlots(update);
-    createDivergingPlot(update);
+function updatePlots(update = true, selectedIds = []) {
+    console.log(selectedIds)
+    updatePlayerCountPlots(update, selectedIds);
+    createWordCloud(update);
 }
 
 
-function updatePlayerCountPlots(update = true) {
+function updatePlayerCountPlots(update = true, selectedIds = []) {
     if (!g_isPublishers){
-        const filteredPCH = filterBySelectedTags();
+        let filteredPCH = filterBySelectedTags();
+        if(filteredPCH !== undefined && selectedIds.length > 0){
+            filteredPCH = filterBySelectedIds(filteredPCH, selectedIds)
+        }
         [g_useTag, g_useId] = filterTagsAndIds(filteredPCH);
         const playerCounts = computePlayerCounts(filteredPCH);
         const numAndPeakPlayersPerTag = getNumAndPeakPlayersPerTag(playerCounts);
-
-    createWordCloud(update);
+        const filteredPGDR = getFilteredPGDR();
 
         createDotPlot(numAndPeakPlayersPerTag, update);
         createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update);
-        createParallelCoordinates(playerCounts, update);
+        if(selectedIds.length == 0){
+            createParallelCoordinates(playerCounts, update);
+        }
+        createDivergingPlot(filteredPGDR, update);
     }
-
-    else{
-        const filteredPCH = filterBySelectedTagsP();
+    
+    else {
+        let filteredPCH = filterBySelectedTagsP();
+        if(filteredPCH !== undefined && selectedIds.length > 0){
+            filteredPCH = filterBySelectedIdsP(filteredPCH, selectedIds)
+        }
         [g_useTag, g_usePid] = filterTagsAndIdsP(filteredPCH);
         const playerCounts = computePlayerCountsP(filteredPCH);
         const numAndPeakPlayersPerTag = getNumAndPeakPlayersPerTagP(playerCounts);
-
-    createWordCloud(update);
+        const filteredPGDR = getFilteredPGDRP();
 
         createDotPlot(numAndPeakPlayersPerTag, update);
         createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update);
-        createParallelCoordinates(playerCounts, update);
+        if(selectedIds.length == 0){
+            createParallelCoordinates(playerCounts, update);
+        }
+        createDivergingPlot(filteredPGDR, update);
     }
 }
-

@@ -32,12 +32,23 @@ function createParallelCoordinates(playerCounts, update) {
     
     d3.selectAll("div#parallel").selectAll("svg").remove();
     
+    if (!g_isPublishers){
     // Create new array with all necessary parallel information
-    for(row in g_parallelInfo){
-        let game = playerCounts[+g_parallelInfo[row]["id"]];
-        if(game != null && !(game === undefined)){
-            data.push({"id": g_parallelInfo[row]["id"], "name":  g_parallelInfo[row]["name"], "num_languages": g_parallelInfo[row]["num_languages"], "RPR": g_parallelInfo[row]["RPR"], "num": game["num"], "peak": game["peak"]});
-        } 
+        for(row in g_parallelInfo){
+            let game = playerCounts[+g_parallelInfo[row]["id"]];
+            if(game != null && !(game === undefined)){
+                data.push({"id": g_parallelInfo[row]["id"], "name":  g_parallelInfo[row]["name"], "num_languages": g_parallelInfo[row]["num_languages"], "RPR": g_parallelInfo[row]["RPR"], "num": game["num"], "peak": game["peak"]});
+            } 
+        }
+    }
+
+    else {
+        for(row in g_parallelInfoP){
+            let publisher = playerCounts[+g_parallelInfoP[row]["publisher_id"]];
+            if(publisher != null && !(publisher === undefined)){
+                data.push({"id": g_parallelInfoP[row]["publisher_id"], "name":  g_parallelInfoP[row]["publisher"], "num_languages": g_parallelInfoP[row]["num_languages"], "RPR": g_parallelInfoP[row]["RPR"], "num": publisher["num"], "peak": publisher["peak"]});
+            } 
+        }
     }
 
     // Create parallel coordinates chart
@@ -153,7 +164,7 @@ function createParallelCoordinates(playerCounts, update) {
             enter => enter
                 .append("g")
                 .attr("class", "dimension")
-                .attr("transform", function(d) { console.log(x(d)) ;return "translate(" + x(d) + ")"; })
+                .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
                 .call(d3.drag()
                     .subject(function(d) { return {x: x(d)}; })
                     .on("start", function(d, i) {
@@ -316,7 +327,6 @@ function createParallelCoordinates(playerCounts, update) {
     }
 
     function brushstart(d) {
-        console.log()
         d.sourceEvent.stopPropagation();
     }
 
@@ -342,14 +352,14 @@ function createParallelCoordinates(playerCounts, update) {
             return actives.every(function(active) {
                 const dim = active.dimension;
                 if(active.extent[0] <= y[dim](d[dim]) && y[dim](d[dim]) <= active.extent[1]){
-                    selected.push(d)
+                    selected.push(d['id'])
                     return true;
                 }
                 return false;
             }) ? null : 'none';
         });
         if(i.type === "end"){
-            console.log(selected);
+            updatePlots(true, selected);
         }
     }
     
@@ -380,7 +390,6 @@ function createParallelCoordinates(playerCounts, update) {
             .selectAll(".yAxis")
             .selectAll("text")
             .filter(function(i){
-                console.log(i)
                 if(i["name"] == d["name"])
                     return i;
             })

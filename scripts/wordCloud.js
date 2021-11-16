@@ -42,8 +42,6 @@ function createWordCloud(update = false) {
         }
     }
 
-    console.log(counts)
-
     const sorted_counts_pre_remove = Object.entries(counts).sort((a, b) => b[1] - a[1]);
 
     for (let selectedTag of g_selectedTags)

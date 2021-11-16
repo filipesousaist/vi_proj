@@ -58,8 +58,6 @@ function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
         }
     }
 
-    console.log(tagsGames)
-
     // Sort games
     topTags.forEach(tag => 
         tagsGames[tag].sort((pc1, pc2) => pc2["num"] - pc1["num"])

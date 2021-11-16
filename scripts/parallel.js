@@ -5,6 +5,7 @@ let pHeight;
 let pXHeight;
 let pTitleHeight;
 let brushWidth;
+let lineOpacity;
 
 function initParallelCoordinates() {
     pDivRect = d3
@@ -25,6 +26,7 @@ function initParallelCoordinates() {
     pTitleHeight = 30;
     pHeight = 410 - pMargin.top - pXHeight - pTitleHeight - pMargin.bottom;
     brushWidth = 20;
+    lineOpacity = 0.4;
 }
 
 function createParallelCoordinates(playerCounts, update) {
@@ -133,6 +135,7 @@ function createParallelCoordinates(playerCounts, update) {
                 enter
                 .append("path")
                 .attr("d", path)
+                .style("opacity", lineOpacity)
                 .on("mouseover", handleMouseOverLine)
                 .on("mouseout", handleMouseOutLine),
             update =>
@@ -357,13 +360,25 @@ function createParallelCoordinates(playerCounts, update) {
             .select("div#parallel")
             .select("svg.plot")
             .select("g.foreground").selectAll("path").filter(function(i) {
-                if(i["name"] == d["name"])
+                if(i["name"] != d["name"])
                     return i;
+            })
+            .style("opacity", 0);
+    
+        d3
+            .select("div#parallel")
+            .select("svg.plot")
+            .select("g.foreground").selectAll("path").filter(function(i) {
+                if(i["name"] == d["name"]){
+                    return i;
+                }
+
             })
             .style("stroke-width", 3)
             .style("stroke", "yellow")
             .append("title")
-            .text(d => d["name"] + "\n" + "No.Languages" + ": " + d["num_languages"] + "\n" + "RPR" + ": " + round(d["RPR"], 2) + "\n" + "No. players (avg.)" + ": " + round(d["num"], 2) + "\n" + "Peak players (avg.)" + ": " + round(d["peak"], 2)),
+            .text(d => d["name"] + "\n" + "No.Languages" + ": " + d["num_languages"] + "\n" + "RPR" + ": " + round(d["RPR"], 2) + "\n" + "No. players (avg.)" + ": " + round(d["num"], 2) + "\n" + "Peak players (avg.)" + ": " + round(d["peak"], 2));
+
         d3
             .select("div#barcharts")
             .selectAll(".yAxis")
@@ -386,12 +401,23 @@ function createParallelCoordinates(playerCounts, update) {
     }
 
     function handleMouseOutLine(_, d){
+         d3
+            .select("div#parallel")
+            .select("svg.plot")
+            .select("g.foreground").selectAll("path").filter(function(i) {
+                if(i["name"] != d["name"])
+                    return i;
+            })
+            .style("opacity", lineOpacity);
+
         d3
             .select("div#parallel")
             .select("svg.plot")
             .select("g.foreground").selectAll("path").filter(function(i) {
-                if(i["name"] == d["name"])
+                if(i["name"] == d["name"]){
                     return i;
+                }
+
             })
             .style("stroke-width", 1)
             .style("stroke", "steelblue")

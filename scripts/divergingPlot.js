@@ -40,10 +40,12 @@ function createDivergingPlot(filteredPGDR, update) {
         .paddingInner(0.5)
         .paddingOuter(0.25);
     
+    let minimum = Math.min(...(d3.map(data, d => d["PGDR"]))); 
+
     const x = d3
         .scaleLinear()
         .domain([
-            Math.min(...(d3.map(data, d => d["PGDR"]))), 
+            minimum > 0 ? 0 : minimum, 
             Math.max(...(d3.map(data, d => d["PGDR"])))
         ])
         .range([0, dWidth]);
@@ -123,8 +125,7 @@ function createDivergingPlot(filteredPGDR, update) {
         
         svg
             .append("g")
-            .attr("class", "yAxis")
-            .attr("transform", "translate(" + x(0) + ",0)");  
+            .attr("class", "yAxis");
         
         svg
             .append("rect")
@@ -137,7 +138,6 @@ function createDivergingPlot(filteredPGDR, update) {
         svg
             .append("g")
             .attr("class", "bars");    
-        
     }
 
     const drag = d3.drag()
@@ -179,6 +179,8 @@ function createDivergingPlot(filteredPGDR, update) {
         .attr("font-family", "Arial")
         .attr("font-weight", "bolder")
         .attr("font-size", 12)
+        .on("mouseover", handleMouseOverDivergingLabels)
+        .on("mouseout", handleMouseOutDivergingLabels)
         .each(wrap)
         .append("title")
         .text(d => d["name"]);
@@ -254,5 +256,92 @@ function createDivergingPlot(filteredPGDR, update) {
         d3.select('.bars').attr("transform", "translate(0, " + moved + ")");
         svg.select('.yAxis').attr("transform", "translate("+ x(0) +", " + moved + ")")
 
+    }
+
+    function handleMouseOverDivergingLabels(_, d){
+        d3
+            .select("div#parallel")
+            .select("svg.plot")
+            .select("g.foreground").selectAll("path").filter(function(i) {
+                if(i["name"] != d["name"])
+                    return i;
+            })
+            .style("opacity", 0);
+    
+        d3
+            .select("div#parallel")
+            .select("svg.plot")
+            .select("g.foreground").selectAll("path").filter(function(i) {
+                if(i["name"] == d["name"]){
+                    return i;
+                }
+
+            })
+            .style("stroke-width", 3)
+            .style("stroke", "yellow");
+        
+        d3
+            .select("div#barcharts")
+            .selectAll(".yAxis")
+            .selectAll("text")
+            .filter(function(i){
+                if(i == d["name"])
+                    return i;
+            })
+            .classed("word-shine", true);
+
+        d3.
+            select("div#diverging_plot")
+            .selectAll(".yAxis")
+            .selectAll("text")
+            .filter(function(i){
+                if(i["name"] == d["name"])
+                    return i;
+            })
+            .classed("word-shine", true);
+
+    }
+    
+    function handleMouseOutDivergingLabels(_, d){
+        d3
+            .select("div#parallel")
+            .select("svg.plot")
+            .select("g.foreground").selectAll("path").filter(function(i) {
+                if(i["name"] != d["name"])
+                    return i;
+            })
+            .style("opacity", lineOpacity);
+
+        d3
+            .select("div#parallel")
+            .select("svg.plot")
+            .select("g.foreground").selectAll("path").filter(function(i) {
+                if(i["name"] == d["name"]){
+                    return i;
+                }
+
+            })
+            .style("stroke-width", 1)
+            .style("stroke", "steelblue");
+
+        d3
+            .select("div#barcharts")
+            .selectAll(".yAxis")
+            .selectAll("text")
+            .filter(function(i){
+                if(i == d["name"])
+                    return i;
+            })
+            .classed("word-shine", false);
+
+        d3.
+            select("div#diverging_plot")
+            .selectAll(".yAxis")
+            .selectAll("text")
+            .filter(function(i){
+                if(i["name"] == d["name"])
+                    return i;
+            })
+            .classed("word-shine", false);
     }
 }

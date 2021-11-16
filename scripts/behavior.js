@@ -34,6 +34,9 @@ let g_playerCountHistory;
 let g_playerCountHistoryP;
 let g_info;
 let g_publishers;
+let g_pgdr; // Array with all PGDR values
+let g_parallelInfo; // Array with info for parallel coord
+let g_pgdrP;
 
 // Array with all tags
 let g_allTags;
@@ -54,14 +57,6 @@ let g_idToNameP;
 // For each tag, its color
 let g_tagToColor;
 
-// Array with all PGDR values
-let g_pgdr;
-
-// Array with info for parallel coord
-let g_parallelInfo;
-
-let g_pgdrP;
-
 // **** Functions ****
 
 function init() {
@@ -76,7 +71,7 @@ function init() {
             d3.csv("data/playerCountHistory_p.csv"),
             d3.csv("data/pgdr_p.csv")
         ])
-        .then(([tags, playerCountHistory, info, parallelInfo,pgdr, publishers, playerCountHistoryP, pgdrP]) => {
+        .then(([tags, playerCountHistory, info, parallelInfo, pgdr, publishers, playerCountHistoryP, pgdrP]) => {
             initIdioms();
             createSlider();
 
@@ -224,8 +219,7 @@ function filterTagsAndIds(filteredPlayerCountHistory) {
 
 function computePlayerCounts(playerCountHistory) {
     const playerCounts = {};
-    const timeParse = d3.timeParse('%m %Y')
-    const formatTime = d3.timeFormat('%b %Y')
+    const timeParse = d3.timeParse('%m %Y');
 
 
     for (let row of playerCountHistory) {
@@ -295,6 +289,38 @@ function getTopTagsByNumPlayers(numAndPeakPlayersPerTag, n) {
     }
 
     return data_num;
+}
+
+function getFilteredPGDR() {
+    const filteredPGDRDict = {};
+    const timeParse = d3.timeParse('%Y-%m');
+
+    for (let row of g_pgdr) {
+        const id = row["appid"];
+        const parsedRowTime = timeParse(row["Date"].substring(0, row["Date"].length - 3));
+        if (parsedRowTime >= g_timeRange[0] && parsedRowTime <= g_timeRange[1]) {
+            if (id in filteredPGDRDict) {
+                filteredPGDRDict[id]["sum"] += parseFloat(row["PGDR"]);
+                filteredPGDRDict[id]["count"] ++;
+            }
+            else
+                filteredPGDRDict[id] = {
+                    "sum": parseFloat(row["PGDR"]),
+                    "count": 1
+                };
+        }
+    }
+
+    const filteredPGDR = [];
+    for (let id in filteredPGDRDict) {
+        const pgdr = filteredPGDRDict[id];
+        filteredPGDR.push({
+            "appid": id,
+            "PGDR": pgdr["sum"] / pgdr["count"]
+        });
+    }
+        
+    return filteredPGDR;
 }
 
 function addShineToTag(tag) {
@@ -367,7 +393,6 @@ function updatePlots(update = true, selectedIds = []) {
     console.log(selectedIds)
     updatePlayerCountPlots(update, selectedIds);
     createWordCloud(update);
-    createDivergingPlot(update);
 }
 
 
@@ -379,10 +404,12 @@ function updatePlayerCountPlots(update = true, selectedIds = []) {
     [g_useTag, g_useId] = filterTagsAndIds(filteredPCH);
     const playerCounts = computePlayerCounts(filteredPCH);
     const numAndPeakPlayersPerTag = getNumAndPeakPlayersPerTag(playerCounts);
+    const filteredPGDR = getFilteredPGDR();
 
     createDotPlot(numAndPeakPlayersPerTag, update);
     createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update);
     if(selectedIds.length == 0){
         createParallelCoordinates(playerCounts, update);
     }
+    createDivergingPlot(filteredPGDR, update);
 }

@@ -25,21 +25,14 @@ function initDivergingPlot() {
     dHeight = 410 - dMargin.top - dXHeight - dTitleHeight - dMargin.bottom;
 }
 
-function createDivergingPlot(update) {
-    let pgdrGames = g_pgdr.filter(game => {
-        return g_useId[game["appid"]]
-    })
+function createDivergingPlot(filteredPGDR, update) {
+    const data = filteredPGDR.filter(
+        game => g_useId[game["appid"]]
+    );
 
-    pgdrGames.sort((pc1, pc2) => pc2["PGDR"] - pc1["PGDR"]);
-    for (let row of pgdrGames){
+    data.sort((pgdr1, pgdr2) => pgdr2["PGDR"] - pgdr1["PGDR"]);
+    for (let row of data)
         row["name"] = g_idToName[row["appid"]];
-        //delete row["appid"];
-    }
-
-
-    const data = pgdrGames.slice()
-
-    //console.log(data)
 
     const y = d3.scaleBand()
         .domain(data.map(d => d["name"]))
@@ -102,7 +95,7 @@ function createDivergingPlot(update) {
         d3
             .select("div#diverging_plot_title")
             .append("svg")
-            .attr("width", dWidth + dMargin.left + dMargin.right)
+            .attr("width", "310")
             .attr("height", dTitleHeight)
             .append("text")
             .text("PGDR")
@@ -111,7 +104,22 @@ function createDivergingPlot(update) {
             .attr("text-decoration", "underline")
             .attr("font-size", "25")
             .attr("font-family", "Arial")
-            .attr("font-weight", "bolder");
+            .attr("font-weight", "bolder")
+            .append("title")
+            .text("Player gain/discount relationship (PGDR) = Player gain / Discount\n" +
+                  "Player gain = (No. players 1 month after discount - No. players 1 month before discount) / No. players 1 month before discount\n" +
+                  "Discount = (Price before discount - Price after discount) / Price before discount" );
+
+        d3
+            .select("div#diverging_plot_title")
+            .append("img")
+            .attr("class", "help_icon")
+            .attr("src", "img/help_icon.png")
+            .attr("height", "25px")
+            .style("pointer-events", "all")
+            .attr("title", "Player gain/discount relationship (PGDR) = Player gain / Discount\n" +
+                  "Player gain = (No. players 1 month after discount - No. players 1 month before discount) / No. players 1 month before discount\n" +
+                  "Discount = (Price before discount - Price after discount) / Price before discount");
         
         svg
             .append("g")
@@ -153,7 +161,7 @@ function createDivergingPlot(update) {
         const self = d3.select(this);
         let textLength = self.node().getComputedTextLength();
         let text = self.text();
-        while (textLength > 90 && text.length > 0) {
+        while (textLength > 100 && text.length > 0) {
             text = text.slice(0, -1);
             self.text(text + '...');
             textLength = self.node().getComputedTextLength();
@@ -166,16 +174,14 @@ function createDivergingPlot(update) {
         .selectAll("text")
         .data(data)
         //.attr("x", x(0))
-      	.attr("dx", function(d) {
-        	return d["PGDR"] < 0 ? 22 : -10;
-      	})
+      	.attr("dx", d => d["PGDR"] < 0 ? 22 : -10)
         .style("text-anchor", d => d["PGDR"] < 0 ? "start" : "end")
         .attr("font-family", "Arial")
         .attr("font-weight", "bolder")
         .attr("font-size", 12)
         .each(wrap)
         .append("title")
-        .text(d => d["name"])
+        .text(d => d["name"]);
         
     svg.select("g.yAxis").selectAll("g.tick line")
         .data(data)
@@ -196,34 +202,20 @@ function createDivergingPlot(update) {
         .join(
             enter => enter
                 .append("rect")
-                .attr("x", function(d){
-                    var mini = Math.min(x(0), x(d["PGDR"]))
-                    return mini
-                })
+                .attr("x", d => Math.min(x(0), x(d["PGDR"])) )
                 .attr("y", d => y(d["name"]))
-                .attr("width", d => Math.abs(x(d["PGDR"]) - x(0)))
+                .attr("width", d => Math.abs(x(d["PGDR"]) - x(0)) )
                 .attr("height", y.bandwidth())
-                .attr("fill", function(d){
-                    if(d["PGDR"] < 0)
-                        return "red"
-                    return "green"
-                })
+                .attr("fill", d => d["PGDR"] < 0 ? "red" : "green")
                 .append("title")
                 .text(d => d["name"] + ": " + round(d["PGDR"], 2)),
             update => update
-                .attr("x", function(d){
-                    var mini = Math.min(x(0), x(d["PGDR"]))
-                    return mini
-                })
+                .attr("x", d => Math.min(x(0), x(d["PGDR"])) )
                 .attr("y", d => y(d["name"]))
-                .attr("width", d => Math.abs(x(d["PGDR"]) - x(0)))
+                .attr("width", d => Math.abs(x(d["PGDR"]) - x(0)) )
                 .attr("height", y.bandwidth())
-                .attr("fill", function(d){
-                    if(d["PGDR"] < 0)
-                        return "red"
-                    return "green"
-                })
-                .append("title")
+                .attr("fill", d => d["PGDR"] < 0 ? "red" : "green")
+                .select("title")
                 .text(d => d["name"] + ": " + round(d["PGDR"], 2)),
             exit => exit.remove()
     );

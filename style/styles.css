@@ -336,6 +336,14 @@ div {
     border: 0;
 }
 
-.parameter-value{
+.parameter-value {
     fill: rgb(255, 200, 80);
+}
+
+.help_icon {
+    border-radius: 12.5px;
+}
+
+.help_icon:hover {
+    background-color: #eee
 }

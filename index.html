@@ -33,15 +33,17 @@
 	<body onload="init();">
 		<h2 id="title">Steam Game Data</h2>
 		<div id="topContent">
-			<div id="leftColumn">
-				<button onclick="switchToGames()">Game</button>
-				<button onclick="switchToPublishers()">Publisher</button>
-				<h2 id="searchTitle">Selected Tags</h2>
-				<div id="searchBox">
-					<div class="tag-container">
-						<input/>
+			<div style="width: 265px;">
+				<button id="toGameButton" class="switchButton" onclick="switchToGames()">By Game</button>
+				<button id="toPublisherButton" class="switchButton" onclick="switchToPublishers()">By Publisher</button>
+				<div id="leftColumn">
+					<h2 id="searchTitle">Selected Tags</h2>
+					<div id="searchBox">
+						<div class="tag-container">
+							<input/>
+						</div>
+						<button id="resetButton" onclick="reset()">Reset</button>
 					</div>
-					<button id="resetButton" onclick="reset()">Reset</button>
 				</div>
 			</div>
 			<div id="rightColumn">

@@ -38,10 +38,11 @@ div {
 
 #leftColumn {
     background-color: #cececed6;
-    height: 1025px;
+    height: 950px;
     width: 265px;
     border: 1px solid #aaaaaa;
     border-radius: 35px;
+    margin-top: 10px;
     margin-left: 10px;
 }
 
@@ -58,6 +59,18 @@ div {
 
 #resetButton{
     width: 27%;
+}
+
+.switchButton{
+    margin-top: 5px;
+    margin-left: 11px;
+    width: 45%;
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.switchButton:hover{
+    background: #43c437;
 }
 
 #left_idioms {

@@ -103,6 +103,7 @@ function init() {
             g_idToNameP = createIdToNameDictP();
             g_tagToColor = createTagToColorDict();
             
+            switchToGames();
             updatePlots(false);
         })
         .catch((error) => {
@@ -582,6 +583,11 @@ function reset() {
 }
 
 function switchToGames(){
+    var button1 = document.getElementById("toGameButton");
+    button1.style.background = "#43c437"
+    var button2 = document.getElementById("toPublisherButton");
+    button2.style.background = "#efefef"
+
     if (g_isPublishers) {
         g_isPublishers = false;
         updatePlots();
@@ -589,6 +595,11 @@ function switchToGames(){
 }
 
 function switchToPublishers(){
+    var button1 = document.getElementById("toGameButton");
+    button1.style.background = "#efefef"
+    var button2 = document.getElementById("toPublisherButton");
+    button2.style.background = "#43c437"
+
     if (!g_isPublishers) {
         g_isPublishers = true;
         updatePlots();

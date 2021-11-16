@@ -287,7 +287,6 @@ function getFilteredPGDR() {
     for (let row of g_pgdr) {
         const id = row["appid"];
         const parsedRowTime = timeParse(row["Date"].substring(0, row["Date"].length - 3));
-        console.log("parsed row time: ", parsedRowTime);
         if (parsedRowTime >= g_timeRange[0] && parsedRowTime <= g_timeRange[1]) {
             if (id in filteredPGDRDict) {
                 filteredPGDRDict[id]["sum"] += parseFloat(row["PGDR"]);
@@ -309,8 +308,6 @@ function getFilteredPGDR() {
             "PGDR": pgdr["sum"] / pgdr["count"]
         });
     }
-
-    console.log(filteredPGDR);
         
     return filteredPGDR;
 }

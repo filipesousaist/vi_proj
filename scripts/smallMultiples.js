@@ -76,20 +76,29 @@ function createSmallMultiples(numAndPeakPlayersPerTag, playerCounts, update) {
             createBarChart([], "", i + 1, update, 0);
     }
 
-    if (!update)
+    let str = g_isPublishers ? "Publishers" : "Games";
+
+    if (!update){
         d3
             .select("div#barcharts_title")
             .append("svg")
             .attr("width", smWidth + smMargin.left + smMargin.right)
             .attr("height", smTitleHeight)
             .append("text")
-            .text("Most Popular Games")
+            .attr("class", "title")
+            .text("Most Popular " + str)
             .attr("transform", "translate(" + (smWidth + smMargin.left + smMargin.right) / 2 + "," + 25 + ")")
             .attr("text-anchor", "middle")
             .attr("text-decoration", "underline")
             .attr("font-size", "25")
             .attr("font-family", "Arial")
             .attr("font-weight", "bolder");
+    }
+console.log(g_isPublishers)
+    d3
+        .select("div#barcharts_title")
+        .select("text.title")
+        .text("Most Popular " + str)
 }
 
 function createBarChart(data, tag, chartNum, update, maxNumPlayers) {

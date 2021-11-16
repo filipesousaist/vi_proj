@@ -61,12 +61,15 @@ div {
     width: 27%;
 }
 
+#toGameButton{
+    margin-left: 19px;
+}
+
 .switchButton{
-    margin-top: 5px;
-    margin-left: 11px;
-    width: 45%;
+    height: 50px;
     transition-duration: 0.4s;
     cursor: pointer;
+    display: inline-block;
 }
 
 .switchButton:hover{

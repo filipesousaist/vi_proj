@@ -25,10 +25,10 @@ function initDivergingPlot() {
     dHeight = 410 - dMargin.top - dXHeight - dTitleHeight - dMargin.bottom;
 }
 
-function createDivergingPlot(update) {
-    let pgdrGames = g_pgdr.filter(game => {
+function createDivergingPlot(filteredPGDR, update) {
+    const pgdrGames = filteredPGDR.filter(game => {
         return g_useId[game["appid"]]
-    })
+    });
 
     pgdrGames.sort((pc1, pc2) => pc2["PGDR"] - pc1["PGDR"]);
     for (let row of pgdrGames){

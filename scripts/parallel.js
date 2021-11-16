@@ -362,6 +362,9 @@ function createParallelCoordinates(playerCounts, update) {
             }) ? null : 'none';
         });
         if(i.type === "end"){
+            if(selected.length == 0){
+                selected.push(null);
+            }
             updatePlots(true, selected);
         }
     }

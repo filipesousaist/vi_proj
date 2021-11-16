@@ -616,7 +616,8 @@ function updatePlayerCountPlots(update = true, selectedIds = []) {
     if (!g_isPublishers){
         let filteredPCH = filterBySelectedTags();
         if(filteredPCH !== undefined && selectedIds.length > 0){
-            filteredPCH = filterBySelectedIds(filteredPCH, selectedIds)
+            if(selectedIds[0] != null)
+                filteredPCH = filterBySelectedIds(filteredPCH, selectedIds)
         }
         [g_useTag, g_useId] = filterTagsAndIds(filteredPCH);
         const playerCounts = computePlayerCounts(filteredPCH);
@@ -634,7 +635,8 @@ function updatePlayerCountPlots(update = true, selectedIds = []) {
     else {
         let filteredPCH = filterBySelectedTagsP();
         if(filteredPCH !== undefined && selectedIds.length > 0){
-            filteredPCH = filterBySelectedIdsP(filteredPCH, selectedIds)
+            if(selectedIds[0] != null)
+                filteredPCH = filterBySelectedIdsP(filteredPCH, selectedIds)
         }
         [g_useTag, g_usePid] = filterTagsAndIdsP(filteredPCH);
         const playerCounts = computePlayerCountsP(filteredPCH);
